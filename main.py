@@ -22,14 +22,17 @@ def slackReq():
 		para += a['messages'][i]['text'] + ". "
 	para = para.decode("utf-8")
 	print para
+
+        #Concepts API disabled - we don't want to use 3rd party apis
+        # Leaving code in as a reminder to consider replacing with something else?
 	#Use your own api key
-	payload = {'apikey': 'a429a338-07a1-4b6e-bd46-c75b1fab8c89', 'text': para}
-	r = requests.get('http://api.idolondemand.com/1/api/sync/extractconcepts/v1', params=payload)
-	json_r = json.loads(r.text)
-	for i in range(len(json_r['concepts'])/2):
-		temp = json_r['concepts'][i]['concept']
-		if (len(temp) >= 4) and (" " in temp) and (temp != "joined the channel"):
-			concepts += temp + ", "
+	# payload = {'apikey': 'a429a338-07a1-4b6e-bd46-c75b1fab8c89', 'text': para}
+	# r = requests.get('http://api.idolondemand.com/1/api/sync/extractconcepts/v1', params=payload)
+	# json_r = json.loads(r.text)
+	# for i in range(len(json_r['concepts'])/2):
+	# 	temp = json_r['concepts'][i]['concept']
+	# 	if (len(temp) >= 4) and (" " in temp) and (temp != "joined the channel"):
+	# 		concepts += temp + ", "
 
 	summary_token = textrank(para)
 	summary = ""
@@ -37,7 +40,7 @@ def slackReq():
 		if "has joined the channel" not in i:
 			summary += i + " "
 
-	res = "*Chat Summary:* \n " + summary + "\n \n" + "*Topics Discussed:*  \n" + concepts
+	res = "*Chat Summary:* \n " + summary + "\n \n" # + "*Topics Discussed:*  \n" + concepts
 
 	print res
 	return str(res)

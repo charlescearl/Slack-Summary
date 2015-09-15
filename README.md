@@ -1,6 +1,8 @@
-# Summarize It!
+# Slack Summary
 
 Summarize it is a chat summarizer plugin for instant messaging applications. It summarizes the large content of chat logs which enables users to quickly understand the current context of the conversation. Currently Summarize it works on top of Slack as its plugin.
+
+The original relied on an HP cloud concepts expraction api. We've pulled that out to remove any reliance on 3rd party apis, and are going to improve the summarizations.
 
 ## Installing Summarize It plugin for your slack
 1. Create a token for your team `https://api.slack.com/web` 
