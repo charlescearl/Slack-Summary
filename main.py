@@ -16,12 +16,11 @@ def slackReq():
 	channel_id = req_data.getlist('channel_id')
 	response =  slack.channels.history(channel_id)
 	a = (response.body)
-	para = ""
+	para = u""
 	concepts = ""
-	for i in range(len(a['messages']) - 1, -1, -1):
-		para += a['messages'][i]['text'] + ". "
-	para = para.decode("utf-8")
-	print para
+	messages = filter(lambda x: x.has_key('text'), a['messages'])
+	for i in range(len(messages) - 1, -1, -1):
+		para += messages[i]['text'] + u". "
 
         #Concepts API disabled - we don't want to use 3rd party apis
         # Leaving code in as a reminder to consider replacing with something else?
@@ -30,7 +29,7 @@ def slackReq():
 	# r = requests.get('http://api.idolondemand.com/1/api/sync/extractconcepts/v1', params=payload)
 	# json_r = json.loads(r.text)
 	# for i in range(len(json_r['concepts'])/2):
-	# 	temp = json_r['concepts'][i]['concept']
+	#	temp = json_r['concepts'][i]['concept']
 	# 	if (len(temp) >= 4) and (" " in temp) and (temp != "joined the channel"):
 	# 		concepts += temp + ", "
 
@@ -40,10 +39,9 @@ def slackReq():
 		if "has joined the channel" not in i:
 			summary += i + " "
 
-	res = "*Chat Summary:* \n " + summary + "\n \n" # + "*Topics Discussed:*  \n" + concepts
+	res = u"*Chat Summary:* \n " + summary + "\n \n" # + "*Topics Discussed:*  \n" + concepts
 
-	print res
-	return str(res)
+	return (res)
 
 
 if __name__ == "__main__":
