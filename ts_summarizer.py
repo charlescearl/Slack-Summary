@@ -6,6 +6,9 @@ import logging
 import sys
 import json
 import io
+from gensim.summarization import summarize as gs_sumrz
+from gensim.models.word2vec import LineSentence
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -37,11 +40,11 @@ class AbstractTsSummarizer(object):
 
     def summarize(self, messages):
         """ Produce the input """
-        return [self.summarize_segment(text_seg) for text_seg in self.segment_messages(messages)]
+        return [self.summarize_segment(msg_seg) for msg_seg in self.segment_messages(messages)]
 
-    def summarize_segment(self, text):
+    def summarize_segment(self, msg_seg):
         """Call the summarizer that is used."""
-        return text
+        return msg_seg
 
     def segment_messages(self, messages):
         """Create message bins.
@@ -88,6 +91,21 @@ class AbstractTsSummarizer(object):
         """
         self.logger.debug("Checking to see if %s is between %s and end", msg_ts, istart)
         return self.intervals[idx].contains(istart, msg_ts)
+
+class TextRankTsSummarizer(AbstractTsSummarizer):
+
+    def __init__(self, ispecs):
+        AbstractTsSummarizer.__init__(self, ispecs)
+                
+    def summarize_segment(self, msg_segment):
+        """Return a summary of the text"""
+        return gs_sumrz(self.parify_text(msg_segment))
+
+    def parify_text(self, msg_segment):
+        return u'. '.join([msg['text'] for msg in msg_segment if 'text' in msg])
+    
+        
+
 
 def ts_to_time(slack_ts):
     """
