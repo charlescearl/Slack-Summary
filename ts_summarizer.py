@@ -72,12 +72,12 @@ class AbstractTsSummarizer(object):
                 break
             if not self.in_interval(interval_start, msg['ts'], interval_idx):
                 self.logger.debug("Starting new interval at %s", msg['ts'])
-                msg_intervals.append(messages[idx_start:idx_end])
+                msg_intervals.append((self.intervals[interval_idx].size, messages[idx_start:idx_end]))
                 idx_start = idx
                 interval_idx += 1
                 interval_start = msg['ts']
             elif idx == len(messages) - 1:
-                msg_intervals.append(messages[idx_start:idx_end+1])
+                msg_intervals.append((self.intervals[interval_idx].size, messages[idx_start:idx_end+1]))
         self.logger.debug("Computed intervals %s", msg_intervals)
         return msg_intervals
 
@@ -99,13 +99,16 @@ class TextRankTsSummarizer(AbstractTsSummarizer):
                 
     def summarize_segment(self, msg_segment):
         """Return a summary of the text"""
-        return gs_sumrz(self.parify_text(msg_segment))
+        size, msgs = msg_segment
+        ratio = size / float(len(msgs))
+        summ = gs_sumrz(self.parify_text(msgs), ratio=ratio)
+        self.logger.debug("Summary for segment %s is %s", msgs, summ) 
+        return summ
 
     def parify_text(self, msg_segment):
-        return u'. '.join([msg['text'] for msg in msg_segment if 'text' in msg])
-    
-        
-
+        ptext = u'. '.join([re.sub(r'[\n\r\.]|\&[a-z]+;', u'', msg['text']) for msg in msg_segment if 'text' in msg])
+        self.logger.debug("Parified text is %s", ptext)
+        return ptext
 
 def ts_to_time(slack_ts):
     """
