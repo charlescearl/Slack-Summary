@@ -1,7 +1,7 @@
 platform=$(shell uname -s)
 conda_path=$(shell which conda)
 
-.PHONY: show check-env venv check
+.PHONY: show check-env venv check run
 
 ifeq ($(platform),Darwin)
 
@@ -29,6 +29,10 @@ deps: $(VENVDIR)
 check: $(VENVDIR)
 	source activate $(SUMMARIZE_VENV);\
 	python ./test_summarizer.py
+
+run: $(VENVDIR)
+	source activate $(SUMMARIZE_VENV);\
+	python ./ts_summarizer.py
 
 else ifeq ($(platform),Linux)
 

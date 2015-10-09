@@ -1,11 +1,13 @@
-
-from summarizer import textrank
+from ts_summarizer import (IntervalSpec, AbstractTsSummarizer,
+                           TextRankTsSummarizer,
+                           ts_to_time)
 from flask import Flask, jsonify, request
 import requests
 from slacker import Slacker
 import json
 import os
 from config import *
+from ts_config import SUMMARY_INTERVALS
 
 slack = Slacker(keys["slack"])
 app = Flask(__name__)
@@ -16,31 +18,9 @@ def slackReq():
 	channel_id = req_data.getlist('channel_id')
 	response =  slack.channels.history(channel_id)
 	a = (response.body)
-	para = u""
-	concepts = ""
-	messages = filter(lambda x: x.has_key('text'), a['messages'])
-	for i in range(len(messages) - 1, -1, -1):
-		para += messages[i]['text'] + u". "
-
-        #Concepts API disabled - we don't want to use 3rd party apis
-        # Leaving code in as a reminder to consider replacing with something else?
-	#Use your own api key
-	# payload = {'apikey': 'a429a338-07a1-4b6e-bd46-c75b1fab8c89', 'text': para}
-	# r = requests.get('http://api.idolondemand.com/1/api/sync/extractconcepts/v1', params=payload)
-	# json_r = json.loads(r.text)
-	# for i in range(len(json_r['concepts'])/2):
-	#	temp = json_r['concepts'][i]['concept']
-	# 	if (len(temp) >= 4) and (" " in temp) and (temp != "joined the channel"):
-	# 		concepts += temp + ", "
-
-	summary_token = textrank(para)
-	summary = ""
-	for i in summary_token:
-		if "has joined the channel" not in i:
-			summary += i + " "
-
-	res = u"*Chat Summary:* \n " + summary + "\n \n" # + "*Topics Discussed:*  \n" + concepts
-
+        summ = TextRankTsSummarizer(SUMMARY_INTERVALS)
+        summary = summ.report_summary(a)
+	res = u"*Chat Summary:* \n " + summary + "\n \n"
 	return (res)
 
 
