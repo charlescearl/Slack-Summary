@@ -1,7 +1,7 @@
 import unittest
 import json
 import io
-from ts_summarizer import (IntervalSpec, AbstractTsSummarizer,
+from ts_summarizer import (IntervalSpec, TsSummarizer,
                            TextRankTsSummarizer,
                            ts_to_time)
 from datetime import datetime
@@ -21,7 +21,7 @@ class TestSummarize(unittest.TestCase):
     def test_create_intervals(self):
         asd = [{'minutes': 10}, {'hours':12}]
         self.assertTrue(len(TestSummarize.test_msgs) == 8)
-        summ = AbstractTsSummarizer(asd)
+        summ = TsSummarizer(asd)
         msgs = summ.segment_messages(TestSummarize.test_msgs)
         logger.debug("Messages received %s", msgs)
         self.assertTrue(len(msgs) == 2)
@@ -29,7 +29,7 @@ class TestSummarize(unittest.TestCase):
         self.assertTrue(msgs[0][1][::-1] == TestSummarize.test_msgs[4:])
         self.assertTrue(msgs[1][1][::-1] == TestSummarize.test_msgs[0:4])
         asd2 = [{'minutes': 5}, ]
-        summ = AbstractTsSummarizer(asd2)
+        summ = TsSummarizer(asd2)
         msgs = summ.segment_messages(TestSummarize.test_msgs)
         logger.debug("Messages received %s", msgs)
         self.assertTrue(len(msgs) == 1)

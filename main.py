@@ -1,6 +1,4 @@
-from ts_summarizer import (IntervalSpec, AbstractTsSummarizer,
-                           TextRankTsSummarizer,
-                           ts_to_time)
+from ts_summarizer import TextRankTsSummarizer
 from flask import Flask, jsonify, request
 import requests
 from slacker import Slacker

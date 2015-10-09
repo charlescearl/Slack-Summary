@@ -35,7 +35,7 @@ class IntervalSpec(object):
     def in_interval(self, d0, d1):
         return d1 <= d0 and d1 >= d0 - self.intv 
     
-class AbstractTsSummarizer(object):
+class TsSummarizer(object):
     """Constructs summaries over a set of ranges"""
     def __init__(self, ispecs):
         self.intervals = map(lambda ispec: IntervalSpec(**ispec), ispecs)
@@ -101,11 +101,11 @@ class AbstractTsSummarizer(object):
         self.logger.debug("Checking to see if %s is between %s and end", msg_ts, istart)
         return self.intervals[idx].contains(istart, msg_ts)
 
-class TextRankTsSummarizer(AbstractTsSummarizer):
+class TextRankTsSummarizer(TsSummarizer):
     flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>')
 
     def __init__(self, ispecs):
-        AbstractTsSummarizer.__init__(self, ispecs)
+        TsSummarizer.__init__(self, ispecs)
                 
     def summarize_segment(self, msg_segment):
         """Return a summary of the text"""
@@ -138,7 +138,7 @@ def main():
     asd = [{'minutes': 30, 'txt' : u'Summary for first 30 minutes:\n', 'size' : 2}, {'hours':36, 'txt' : u'Summary for next 36 hours:\n', 'size': 3}]
     # test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))
     # logger.debug("Loading msgs")
-    # summ = AbstractTsSummarizer(asd)
+    # summ = TsSummarizer(asd)
     # msgs = summ.segment_messages(test_msgs)
     tr_summ = TextRankTsSummarizer(asd)
     all_msgs = []
