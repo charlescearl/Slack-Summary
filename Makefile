@@ -47,6 +47,9 @@ clean:
 check: | $(VENVDIR)
 	$(PYVENV) ./test_summarizer.py
 
+run: | $(VENVDIR)
+	$(PYVENV) ./ts_summarizer.py
+
 $(VENVDIR):
 	test -d $(VENVDIR) || (virtualenv $(VENVDIR);\
 	$(PIPVENV) install -r ./requirements.txt)
