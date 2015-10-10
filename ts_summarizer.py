@@ -112,11 +112,12 @@ class TextRankTsSummarizer(TsSummarizer):
         size, msgs, txt = msg_segment
         ratio = size / float(len(msgs))
         summ = txt + u' '
+        can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
         if len(msgs) < 10:
             #return the longest
-            summ += sorted([TextRankTsSummarizer.flrg.sub(u'', msg['text']) for msg in msgs if 'text' in msg], key=lambda txt: len(txt), reverse=True)[0]
+            summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         else:
-            summ += gs_sumrz(self.parify_text(msgs), ratio=ratio)
+            summ += u'\n'.join([tagged_sum(can_dict(ss)) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio).split('\n')])
         self.logger.debug("Summary for segment %s is %s", msgs, summ) 
         return summ
 
@@ -124,6 +125,14 @@ class TextRankTsSummarizer(TsSummarizer):
         ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', msg['text']) for msg in msg_segment if 'text' in msg])
         self.logger.debug("Parified text is %s", ptext)
         return ptext
+
+def canonicalize(txt):
+    """Filter and change text to sentece form"""
+    ntxt = TextRankTsSummarizer.flrg.sub(u'', txt)
+    return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
+
+def tagged_sum(msg):
+    return u'USER:{} at {}: {}'.format(msg['user'], msg['ts'], msg['text'])
 
 def ts_to_time(slack_ts):
     """
