@@ -102,7 +102,7 @@ class TsSummarizer(object):
         return self.intervals[idx].contains(istart, msg_ts)
 
 class TextRankTsSummarizer(TsSummarizer):
-    flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>')
+    flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:')
 
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
@@ -117,7 +117,7 @@ class TextRankTsSummarizer(TsSummarizer):
             #return the longest
             summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         else:
-            summ += u'\n'.join([tagged_sum(can_dict(ss)) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio).split('\n')])
+            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio).split('\n') if len(ss) > 1])
         self.logger.debug("Summary for segment %s is %s", msgs, summ) 
         return summ
 
@@ -132,7 +132,7 @@ def canonicalize(txt):
     return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
 
 def tagged_sum(msg):
-    return u'USER:{} at {}: {}'.format(msg['user'], msg['ts'], msg['text'])
+    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), msg['user'],  msg['text'])
 
 def ts_to_time(slack_ts):
     """
@@ -151,7 +151,7 @@ def main():
     # msgs = summ.segment_messages(test_msgs)
     tr_summ = TextRankTsSummarizer(asd)
     all_msgs = []
-    for msg_file in glob.glob('/Users/gayatrisethi/Documents/wp_summarizer/nosara/*.json'):
+    for msg_file in glob.glob('/home/charles/automattic/dsets/elasticsearch/*.json'):
         with io.open(msg_file, encoding='utf-8',) as mf:
             all_msgs += json.load(mf)
     logger.info(tr_summ.report_summary(all_msgs))

@@ -10,3 +10,5 @@ requests[security]==2.7.0
 slacker==0.6.2
 wsgiref==0.1.2
 gensim==0.12.2
+ipython
+jupyter

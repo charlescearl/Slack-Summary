@@ -3,6 +3,9 @@ conda_path=$(shell which conda)
 
 .PHONY: show check-env venv check run
 
+HOST_IP?=10.0.0.10
+NB_PORT?=8887
+
 ifeq ($(platform),Darwin)
 
 ifneq ($(findstring conda,$(conda_path)),conda)
@@ -49,6 +52,9 @@ check: | $(VENVDIR)
 
 run: | $(VENVDIR)
 	$(PYVENV) ./ts_summarizer.py
+
+notebook: | $(VENVDIR)
+	$(NBVENV) notebook --ip=$(HOST_IP) --port=$(NB_PORT) --no-browser
 
 $(VENVDIR):
 	test -d $(VENVDIR) || (virtualenv $(VENVDIR);\
