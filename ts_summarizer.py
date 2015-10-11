@@ -151,7 +151,7 @@ def main():
     # msgs = summ.segment_messages(test_msgs)
     tr_summ = TextRankTsSummarizer(asd)
     all_msgs = []
-    for msg_file in glob.glob('/home/charles/automattic/dsets/elasticsearch/*.json'):
+    for msg_file in glob.glob('./data/*.json'):
         with io.open(msg_file, encoding='utf-8',) as mf:
             all_msgs += json.load(mf)
     logger.info(tr_summ.report_summary(all_msgs))
