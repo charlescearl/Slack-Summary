@@ -117,7 +117,7 @@ class TextRankTsSummarizer(TsSummarizer):
             #return the longest
             summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         else:
-            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio).split('\n') if len(ss) > 1])
+            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
         self.logger.debug("Summary for segment %s is %s", msgs, summ) 
         return summ
 
