@@ -6,21 +6,15 @@ import json
 import os
 from config import *
 from ts_config import SUMMARY_INTERVALS
+from slack_summary import SlackRouter
 
-slack = Slacker(keys["slack"])
 app = Flask(__name__)
 
 @app.route("/slack", methods=['POST'])
 def slackReq():
 	req_data = request.form
 	channel_id = req_data.getlist('channel_id')
-	response =  slack.channels.history(channel_id)
-	a = (response.body)
-        summ = TextRankTsSummarizer(SUMMARY_INTERVALS)
-        summary = summ.report_summary(a)
-	res = u"*Chat Summary:* \n " + summary + "\n \n"
-	return (res)
-
+	return (SlackRouter().get_summary(channel_id))
 
 if __name__ == "__main__":
 	# Bind to PORT if defined, otherwise default to 5000.
