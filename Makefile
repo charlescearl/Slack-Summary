@@ -31,7 +31,8 @@ deps: $(VENVDIR)
 
 check: $(VENVDIR)
 	source activate $(SUMMARIZE_VENV);\
-	python ./test_summarizer.py
+	python ./test_summarizer.py;\
+	python ./test_service_components.py
 
 run: $(VENVDIR)
 	source activate $(SUMMARIZE_VENV);\
@@ -48,7 +49,8 @@ clean:
 	rm -r $(VENVDIR)
 
 check: | $(VENVDIR)
-	$(PYVENV) ./test_summarizer.py
+	$(PYVENV) ./test_summarizer.py;\
+	$(PYVENV) ./test_service_components.py;\
 
 run: | $(VENVDIR)
 	$(PYVENV) ./ts_summarizer.py
