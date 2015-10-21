@@ -8,11 +8,9 @@ import json
 import io
 from gensim.summarization import summarize as gs_sumrz
 from gensim.models.word2vec import LineSentence
-from ts_config import TS_DEBUG
+from ts_config import TS_DEBUG, TS_LOG
 import glob
-
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class IntervalSpec(object):
     slk_ts = re.compile(r'(?P<epoch>[1-9][^\.]+).*')
@@ -40,6 +38,14 @@ class TsSummarizer(object):
     def __init__(self, ispecs):
         self.intervals = map(lambda ispec: IntervalSpec(**ispec), ispecs)
         self.logger = logging.getLogger(__name__)
+        log_level = logging.DEBUG if TS_DEBUG else logging.INFO
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh = logging.FileHandler(TS_LOG, mode='a', encoding='utf-8')
+        fh.setLevel(log_level)
+        fh.setFormatter(formatter)
+        self.logger = logging.getLogger('ts_summarizer')
+        self.logger.handlers = []
+        self.logger.addHandler(fh)
 
     def summarize(self, messages):
         """ Produce the input """
@@ -106,6 +112,14 @@ class TextRankTsSummarizer(TsSummarizer):
 
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
+        log_level = logging.DEBUG if TS_DEBUG else logging.INFO
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh = logging.FileHandler(TS_LOG, mode='a', encoding='utf-8')
+        fh.setLevel(log_level)
+        fh.setFormatter(formatter)
+        self.logger = logging.getLogger('ts_summarizer')
+        self.logger.handlers = []
+        self.logger.addHandler(fh)
                 
     def summarize_segment(self, msg_segment):
         """Return a summary of the text"""
@@ -145,10 +159,7 @@ def ts_to_time(slack_ts):
 
 def main():
     asd = [{'minutes': 30, 'txt' : u'Summary for first 30 minutes:\n', 'size' : 2}, {'hours':36, 'txt' : u'Summary for next 36 hours:\n', 'size': 3}]
-    # test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))
-    # logger.debug("Loading msgs")
-    # summ = TsSummarizer(asd)
-    # msgs = summ.segment_messages(test_msgs)
+    logger = logging.getLogger(__name__)
     tr_summ = TextRankTsSummarizer(asd)
     all_msgs = []
     for msg_file in glob.glob('./data/*.json'):

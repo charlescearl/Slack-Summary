@@ -8,17 +8,24 @@ from slacker import Slacker
 import slacker
 import logging
 import uuid
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+import config
 
 class SlackRouter(object):
+
         def __init__(self,):
             self.slack = slacker.Slacker(keys["slack"])
+            log_level = logging.DEBUG if config.DEBUG else logging.INFO
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            fh = logging.FileHandler(config.LOG_FILE, mode='a', encoding='utf-8')
+            fh.setLevel(log_level)
+            fh.setFormatter(formatter)
+            self.logger = logging.getLogger('slack_summary')
+            self.logger.handlers = []
+            self.logger.setLevel(log_level)
+            self.logger.addHandler(fh)
 
         def get_response(self, channel_id):
-            logger.info(u'Generating summary for channel: %s', channel_id)
+            self.logger.debug(u'Generating summary for channel: %s', channel_id)
             return self.slack.channels.history(channel_id)
 
         def get_summary(self, **args):
@@ -32,10 +39,11 @@ class SlackRouter(object):
 	    a = (response.body)
             summ = TextRankTsSummarizer(SUMMARY_INTERVALS)
             summary = summ.report_summary(a)
-            logger.info(u'Summary request %s user_id: %s', request_id, user_id)
-            logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
-            logger.info(u'Summary request %s parameters: %s', request_id, params)
-            logger.info(u'Summary request %s summary:\n %s', request_id, summary)
+            self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
+            self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
+            self.logger.info(u'Summary request %s parameters: %s', request_id, params)
+            self.logger.debug(u'Summary request %s messages: %s', request_id, a)
+            self.logger.info(u'Summary request %s summary:\n %s', request_id, summary)
 	    res = u"*Chat Summary:* \n " + summary + "\n \n"
             return res
 
