@@ -3,20 +3,20 @@ from ts_summarizer import TextRankTsSummarizer
 import requests
 import json
 from config import *
-from ts_config import SUMMARY_INTERVALS
+from ts_config import DEBUG, LOG_FILE, SUMMARY_INTERVALS
 from slacker import Slacker
 import slacker
 import logging
 import uuid
-import config
+
 
 class SlackRouter(object):
 
         def __init__(self,):
             self.slack = slacker.Slacker(keys["slack"])
-            log_level = logging.DEBUG if config.DEBUG else logging.INFO
+            log_level = logging.DEBUG if DEBUG else logging.INFO
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            fh = logging.FileHandler(config.LOG_FILE, mode='a', encoding='utf-8')
+            fh = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
             fh.setLevel(log_level)
             fh.setFormatter(formatter)
             self.logger = logging.getLogger('slack_summary')

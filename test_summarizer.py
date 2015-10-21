@@ -8,9 +8,10 @@ from datetime import datetime
 import logging
 import sys
 import config
+from ts_config import DEBUG
 
 logger = logging.getLogger()
-logger.level = logging.DEBUG if config.DEBUG else logging.INFO
+logger.level = logging.DEBUG if DEBUG else logging.INFO
 
 class TestSummarize(unittest.TestCase):
 

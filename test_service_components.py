@@ -7,6 +7,7 @@ import main
 from slack_summary import SlackRouter
 from requests import Response
 import config
+from ts_config import DEBUG, LOG_FILE
 import sys
 import logging
 import json
@@ -15,9 +16,9 @@ import io
 class Test(unittest.TestCase):
     def setUp(self):
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        log_level = logging.DEBUG if config.DEBUG else logging.INFO
+        log_level = logging.DEBUG if DEBUG else logging.INFO
         self.logger = logging.getLogger(__name__)
-        self.fh = logging.FileHandler(config.LOG_FILE, mode='a', encoding='utf-8')
+        self.fh = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
         self.fh.setLevel(log_level)
         self.fh.setFormatter(formatter)
         self.logger.handlers = []
