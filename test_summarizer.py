@@ -7,9 +7,10 @@ from ts_summarizer import (IntervalSpec, TsSummarizer,
 from datetime import datetime
 import logging
 import sys
+import config
 
 logger = logging.getLogger()
-logger.level = logging.DEBUG
+logger.level = logging.DEBUG if config.DEBUG else logging.INFO
 
 class TestSummarize(unittest.TestCase):
 
