@@ -10,6 +10,7 @@ from slack_summary import SlackRouter
 
 app = Flask(__name__)
 
+
 @app.route("/slack", methods=['POST'])
 def slackReq():
 	req_data = request.form
