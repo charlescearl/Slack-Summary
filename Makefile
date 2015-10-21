@@ -50,7 +50,7 @@ clean:
 
 check: | $(VENVDIR)
 	$(PYVENV) ./test_summarizer.py;\
-	$(PYVENV) ./test_service_components.py;\
+	$(PYVENV) ./test_service_components.py
 
 run: | $(VENVDIR)
 	$(PYVENV) ./ts_summarizer.py

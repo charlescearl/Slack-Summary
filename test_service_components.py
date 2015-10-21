@@ -40,6 +40,10 @@ class Test(unittest.TestCase):
         mock_slack.return_value.channels = self.channel_mock
         rv = self.app.post('/slack', data=dict(
                     channel_id='achannel',
+                    channel_name='achannel',
+                    user_id='user123',
+                    user_name='bob',
+                    text='-5 days @bob'
                 ), follow_redirects=True)
         logger.info("Response is %s", rv.data)
         self.assertTrue(rv.status_code == 200)

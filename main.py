@@ -13,8 +13,14 @@ app = Flask(__name__)
 @app.route("/slack", methods=['POST'])
 def slackReq():
 	req_data = request.form
-	channel_id = req_data.getlist('channel_id')
-	return (SlackRouter().get_summary(channel_id))
+        req = {
+	        'channel_id' : req_data.getlist('channel_id'),
+                'channel_name' : req_data['channel_name'],
+                'user_id' : req_data['user_id'],
+                'user_name' : req_data['user_name'],
+                'params' : req_data['text']
+                }
+	return (SlackRouter().get_summary(**req))
 
 if __name__ == "__main__":
 	# Bind to PORT if defined, otherwise default to 5000.
