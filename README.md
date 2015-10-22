@@ -33,14 +33,26 @@ Then edit `ts_config.py` file to adjust the debugging options
 Here the `LOG_FILE` stores where notices of users accessing the server is stored and the
 value of `DEBUG` determines if detailed logging is stored.
 
+The plugin is executed by running
 
-Deploy the app at heroku/IBM bluemix etc.
+    python main.py
 
-Visit `https://<your-team-name>.slack.com/services/new/slash-commands`
 
-Enter the command name you wish to use
+Tests are currently setup to run in a python `virtualenv`. These will executed by
+runnning
 
-Enter the request url as `<your-deployed-app-url>/slack`
+	make check
+
+but realize that the <b>test will install and run in a virtualenv</b>
+
+
+To complete the installation
+
+1. Visit `https://<your-team-name>.slack.com/services/new/slash-commands`
+
+2. Enter the command name you wish to use
+
+3. Enter the request url as `<your-deployed-app-url>/slack`
 
 ## Using Summarize It plugin with slack
 Type /your-command to initiate the plugin. The plugin will automatically summarize the above chat contents and display the summary.
