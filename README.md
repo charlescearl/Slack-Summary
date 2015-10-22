@@ -5,15 +5,42 @@ Summarize it is a chat summarizer plugin for instant messaging applications. It 
 The original relied on an HP cloud concepts expraction api. We've pulled that out to remove any reliance on 3rd party apis, and are going to improve the summarizations.
 
 ## Installing Summarize It plugin for your slack
-1. Create a token for your team `https://api.slack.com/web` 
-2. Clone/fork this repository and create a file "config.py" like so:
-    `keys = {
-        "slack": "your-token-here"
-    }`
-3. Deploy the app at heroku/IBM bluemix etc.
-4. Visit `https://<your-team-name>.slack.com/services/new/slash-commands`
-5. Enter the command name you wish to use
-6. Enter the request url as `<your-deployed-app-url>/slack`
+
+To install the summary package
+
+Firsts, create a token for your team `https://api.slack.com/web` 
+
+   	   pip install flask requests slacker wsgiref jupyter mock pbr spacy numpy
+
+Then run
+
+     python -m spacy.en.download all
+
+Edit the `config.py` file that it includes the line
+
+     keys = {
+     	     "slack": "your-token-here"
+    	     }
+
+Then edit `ts_config.py` file to adjust the debugging options
+
+     SUMMARY_INTERVALS = [{'minutes': 10, 'size': 1}, {'hours':12, 'size': 2}]
+     TS_DEBUG = True
+     TS_LOG = "./ts_summ.log"
+     DEBUG=True
+     LOG_FILE="./summary.log"
+
+Here the `LOG_FILE` stores where notices of users accessing the server is stored and the
+value of `DEBUG` determines if detailed logging is stored.
+
+
+Deploy the app at heroku/IBM bluemix etc.
+
+Visit `https://<your-team-name>.slack.com/services/new/slash-commands`
+
+Enter the command name you wish to use
+
+Enter the request url as `<your-deployed-app-url>/slack`
 
 ## Using Summarize It plugin with slack
 Type /your-command to initiate the plugin. The plugin will automatically summarize the above chat contents and display the summary.
