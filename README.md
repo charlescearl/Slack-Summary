@@ -55,7 +55,20 @@ To complete the installation
 3. Enter the request url as `<your-deployed-app-url>/slack`
 
 ## Using Summarize It plugin with slack
-Type /your-command to initiate the plugin. The plugin will automatically summarize the above chat contents and display the summary.
+
+Let's assume that that plugin is named <b>summary</b>. The plugin supports a small
+command line syntax with allows specification of the previous window of time to look
+back. Currently this can be specified in `minutes, days, or weeks`. Keyword search is
+coming soon.
+
+So to get the key messages from the last 5 days:
+
+   /summary 5 days
+
+Or to get a summary of the important messages over the last two weeks
+
+   /summary 2 weeks
+
 
 ## Screenshots
 
