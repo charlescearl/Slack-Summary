@@ -60,8 +60,8 @@ notebook: | $(VENVDIR)
 
 $(VENVDIR):
 	test -d $(VENVDIR) || (virtualenv $(VENVDIR);\
-	$(PIPVENV) install -r ./requirements.txt);\
-	$(PYVENV) -m spacy.en.download all
+	$(PIPVENV) install -r ./requirements.txt;\
+	$(PYVENV) -m spacy.en.download all)
 
 else
 	$(error, Unknown platform)
