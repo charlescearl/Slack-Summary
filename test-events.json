@@ -1,0 +1,50 @@
+[
+        {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "i\u2019m wondering if in the future we would like some kind of heatmap option for homepage, like\n\n `wpcom_homepage_link_click` with properties: signup_top, signup_bottom, xyz, abc, etc",
+        "ts": "1441909889.000130"
+    },
+    {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "because i imagine the places we link people will vary quite a bit with tests",
+        "ts": "1441909928.000131"
+    },
+    {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "&gt; If there are 2 buttons on the page going to the same link, you could differentiate them by putting in a query parameter to the url",
+        "ts": "1441910041.000132"
+    },
+    {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "wondering why that is better than adding a tracks event",
+        "ts": "1441910059.000133"
+    },
+    {
+        "type": "message",
+        "user": "U03CGFPKV",
+        "text": "once we have user properties, we should be able to tell if a specific user is a paid user at a given point in time",
+        "ts": "1441925382.000186"
+    },
+    {
+        "type": "message",
+        "user": "U03CGFPKV",
+        "text": "but we can't really do that efficiently yet",
+        "ts": "1441925388.000187"
+    },
+    {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "perf. understood",
+        "ts": "1441925394.000188"
+    },
+    {
+        "type": "message",
+        "user": "U029LMSEC",
+        "text": "thanks for the debrief",
+        "ts": "1441925398.000189"
+    }
+    ]

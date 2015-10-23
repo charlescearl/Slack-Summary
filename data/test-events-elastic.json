@@ -1,0 +1,394 @@
+[   {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "presumably those have been resolved by now however it seems the ES query i need to do has since changed as i'm getting an error",
+        "ts": "1414028017.000313"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "```Exception(Elastica\\Exception\\ResponseException): SearchPhaseExecutionException[Failed to execute phase [query_fetch], all shards failed; shardFailures {[br5TQBVNRr-pVXXW9crQeA][blog_network_7-6][0]: RemoteTransportException[[<http:\/\/es1.vip.search.dfw.wordpress.com|es1.vip.search.dfw.wordpress.com>][inet[\/192.0.80.174:9300]][search\/phase\/query+fetch]]; nested: ElasticsearchIllegalArgumentException[field [tag] isn't a leaf field]; }]```",
+        "edited": {
+            "user": "U029CL0GJ",
+            "ts": "1414028035.000000"
+        },
+        "ts": "1414028030.000314"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "hmmm...",
+        "ts": "1414028037.000317"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "here's my code. rather than stumbling through it, can someone take a look at see if anything sticks out as being wrong?",
+        "ts": "1414028064.000318"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "<https:\/\/mc.a8c.com\/pb\/78ba\/#php>",
+        "ts": "1414028064.000319"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "its probably a change to how ES handles it",
+        "ts": "1414028067.000320"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "looking...",
+        "ts": "1414028069.000321"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "thanks",
+        "ts": "1414028072.000322"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "oh, i think the 'tag' in your 'fields' list is not specific enough",
+        "ts": "1414028159.000323"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "you need say tag.term_id or tag.name, tag.slug",
+        "ts": "1414028174.000324"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "the goal is to get all posts\/comments a user subscribes to?",
+        "ts": "1414028231.000325"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "all of the tabs",
+        "ts": "1414028253.000326"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "although i see nick did some commits since i worked on it",
+        "ts": "1414028287.000327"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "hmm, maybe he beat me to it",
+        "ts": "1414028290.000328"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "meh, still going to commit",
+        "ts": "1414028311.000329"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "i ditched all the ajax since ES is so fast",
+        "ts": "1414028318.000330"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "cool :simple_smile:",
+        "ts": "1414028331.000331"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "getting 250 results is probably fine right now. Someday our index may get too big",
+        "ts": "1414028371.000332"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "but we'll deal with that when it breaks :simple_smile:",
+        "ts": "1414028396.000333"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "for tags, it looks like i wanted a meta object: <https:\/\/mc.a8c.com\/pb\/78bb\/#php>",
+        "ts": "1414028427.000334"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "all the tags",
+        "ts": "1414028466.000335"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "i think you have specify each field individually now",
+        "ts": "1414028471.000336"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "i vaguely remember that change in ES at some point, but don't recall why",
+        "ts": "1414028487.000337"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "so you need tag.slug and tag.name",
+        "ts": "1414028521.000338"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "i think its because they don't actually get stored together",
+        "ts": "1414028552.000339"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "i just removed tag for now, i'll circle back. no errors but no results either.",
+        "ts": "1414028562.000340"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "did you get empty results, false, or WP_Error back?",
+        "ts": "1414028628.000341"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "empty results",
+        "ts": "1414028635.000342"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "oh, you probably also need to set 'blog_id' = null",
+        "ts": "1414028684.000343"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "in $es_query_args",
+        "ts": "1414028693.000344"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "query in json form: <https:\/\/mc.a8c.com\/pb\/78bc\/#js>",
+        "ts": "1414028697.000345"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "that was a change we had to make to our api",
+        "ts": "1414028702.000346"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "otherwise it will autofilter by the current blog_id",
+        "ts": "1414028772.000347"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "that worked i think",
+        "ts": "1414028774.000348"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "yeah, loads in a fraction of a second :simple_smile:",
+        "ts": "1414028860.000349"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "as it should :simple_smile:",
+        "ts": "1414028871.000350"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "cool. now to list out post tags and i'll be good to go.",
+        "ts": "1414028907.000351"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "thanks for you help!",
+        "ts": "1414028909.000352"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "anytime",
+        "ts": "1414028917.000353"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "that delete-by-query image may just have been a random spike",
+        "ts": "1414030195.000354"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "this tag format is annoying :disappointed:",
+        "ts": "1414030571.000355"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "what about it?",
+        "ts": "1414030584.000356"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "if there's one tag, it's a string, if there's more than one, it's an array",
+        "ts": "1414030587.000357"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "i also have to match up keys between the two fields",
+        "ts": "1414030595.000358"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "ya",
+        "ts": "1414030602.000359"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "ya, its not really a full object",
+        "ts": "1414030618.000360"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "the string vs array is particularly annoying",
+        "ts": "1414030623.000361"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "its more for searching against than as a doc store",
+        "ts": "1414030629.000362"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "ah",
+        "ts": "1414030636.000363"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "that's why we usually just get the blog_id, post_id and then use the DB",
+        "ts": "1414030645.000364"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "gotcha. that'd be slow here though -- too many `switch_to_blog()`",
+        "ts": "1414030660.000365"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "the string vs array thing is a pain",
+        "ts": "1414030663.000366"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "you'll probably hit the cache most of the time with get_blog_post(), but that is a lot of posts",
+        "ts": "1414030783.000367"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "<@U029CL0GJ>: if you return \"fields\": [ \"_source\" ] that should be the orig doc that we indexed. Might be more consistently formatted for your needs",
+        "ts": "1414030941.000368"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "too late, already got it working :simple_smile:",
+        "ts": "1414031030.000369"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": ":simple_smile:",
+        "ts": "1414031035.000370"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "but thanks",
+        "ts": "1414031051.000371"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "np",
+        "ts": "1414031055.000372"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "launched: <https:\/\/mc.a8c.com\/p2s\/#p2s-updates>",
+        "ts": "1414031171.000373"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "dat speed :smile:",
+        "ts": "1414031173.000374"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "literally took 10+ seconds of spinner wheel to load before",
+        "ts": "1414031188.000375"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "dang that's fast",
+        "ts": "1414031188.000376"
+    },
+    {
+        "type": "message",
+        "user": "U027LSDDA",
+        "text": "nice",
+        "ts": "1414031190.000377"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "oops, that's posts only from my tag debugging",
+        "ts": "1414031209.000378"
+    },
+    {
+        "type": "message",
+        "user": "U029CL0GJ",
+        "text": "fixed",
+        "ts": "1414031263.000379"
+    }]

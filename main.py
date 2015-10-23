@@ -1,48 +1,34 @@
-
-from summarizer import textrank
 from flask import Flask, jsonify, request
+#from flask.ext.cache import Cache
 import requests
 from slacker import Slacker
 import json
 import os
 from config import *
-
-slack = Slacker(keys["slack"])
+from slack_summary import SlackRouter
+import lsa 
 app = Flask(__name__)
+#app.config['CACHE_TYPE'] = 'null'
+#app.config['CACHE_DIR'] = './cache'
+#app.cache = Cache(app)
+
 
 @app.route("/slack", methods=['POST'])
 def slackReq():
 	req_data = request.form
-	channel_id = req_data.getlist('channel_id')
-	response =  slack.channels.history(channel_id)
-	a = (response.body)
-	para = u""
-	concepts = ""
-	messages = filter(lambda x: x.has_key('text'), a['messages'])
-	for i in range(len(messages) - 1, -1, -1):
-		para += messages[i]['text'] + u". "
-
-        #Concepts API disabled - we don't want to use 3rd party apis
-        # Leaving code in as a reminder to consider replacing with something else?
-	#Use your own api key
-	# payload = {'apikey': 'a429a338-07a1-4b6e-bd46-c75b1fab8c89', 'text': para}
-	# r = requests.get('http://api.idolondemand.com/1/api/sync/extractconcepts/v1', params=payload)
-	# json_r = json.loads(r.text)
-	# for i in range(len(json_r['concepts'])/2):
-	#	temp = json_r['concepts'][i]['concept']
-	# 	if (len(temp) >= 4) and (" " in temp) and (temp != "joined the channel"):
-	# 		concepts += temp + ", "
-
-	summary_token = textrank(para)
-	summary = ""
-	for i in summary_token:
-		if "has joined the channel" not in i:
-			summary += i + " "
-
-	res = u"*Chat Summary:* \n " + summary + "\n \n" # + "*Topics Discussed:*  \n" + concepts
-
-	return (res)
-
+        # summ = app.cache.get('summarizer')
+        # if not summ:
+        #         summ = lsa.LsaSummarizer()
+        #         app.cache.set('summarizer', summ)
+        req = {
+	        'channel_id' : req_data.getlist('channel_id'),
+                'channel_name' : req_data['channel_name'],
+                'user_id' : req_data['user_id'],
+                'user_name' : req_data['user_name'],
+                'params' : req_data['text'],
+#                'summ' : summ
+                }
+	return (SlackRouter().get_summary(**req))
 
 if __name__ == "__main__":
 	# Bind to PORT if defined, otherwise default to 5000.
