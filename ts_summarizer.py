@@ -6,6 +6,10 @@ import logging
 import sys
 import json
 import io
+import lsa
+import utils
+import base_summarizer
+import compat
 from gensim.summarization import summarize as gs_sumrz
 from gensim.models.word2vec import LineSentence
 from ts_config import TS_DEBUG, TS_LOG
@@ -109,7 +113,8 @@ class TsSummarizer(object):
 
 class TextRankTsSummarizer(TsSummarizer):
     flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:')
-
+    #sumr = lsa.LsaSummarizer()
+    
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
         log_level = logging.DEBUG if TS_DEBUG else logging.INFO
@@ -122,17 +127,28 @@ class TextRankTsSummarizer(TsSummarizer):
         self.logger.addHandler(fh)
                 
     def summarize_segment(self, msg_segment):
-        """Return a summary of the text"""
+        """Return a summary of the text
+        TODO: 1. Looks like spacy is not getting the main sentence from the message.
+        2. Load times for the spacy summarizer won't cut it. Commenting out now 
+           until this can be fixed
+        """
         size, msgs, txt = msg_segment
         ratio = size / float(len(msgs))
         summ = txt + u' '
         can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
+        self.logger.info("Length of can_dict is %s", len(can_dict))
         if len(msgs) < 10:
             #return the longest
             summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         else:
-            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
-        self.logger.debug("Summary for segment %s is %s", msgs, summ) 
+            #txt_sum = [v for v in TextRankTsSummarizer.sumr(u' '.join(can_dict.keys()), size)]
+            #self.logger.info("Spacy summ %s", txt_sum)
+            gn_sum = gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
+            self.logger.info("Gensim sum %s", gn_sum)
+            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
+            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in txt_sum if len(ss) > 1])
+            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
+        self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 
     def parify_text(self, msg_segment):

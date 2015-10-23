@@ -76,7 +76,7 @@ class SlackRouter(object):
     def build_interval(self, commands):
         """Return a single interval for the summarization"""
         unit, units, keywords = self._parse_args(commands)
-        interval = {'size': 2}
+        interval = {'size': 3}
         if unit:
             interval[unit+'s'] = units
         else:
