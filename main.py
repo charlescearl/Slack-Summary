@@ -1,11 +1,9 @@
-from ts_summarizer import TextRankTsSummarizer
 from flask import Flask, jsonify, request
 import requests
 from slacker import Slacker
 import json
 import os
 from config import *
-from ts_config import SUMMARY_INTERVALS
 from slack_summary import SlackRouter
 
 app = Flask(__name__)
