@@ -107,7 +107,6 @@ class TsSummarizer(object):
 
 class SpacyTsSummarizer(TsSummarizer):
     flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:|`{3}[^`]*`{3}')
-    #sumr = lsa.LsaSummarizer()
     
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
@@ -152,7 +151,6 @@ class SpacyTsSummarizer(TsSummarizer):
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
                             summ += u'\n' + tagged_sum(msg)
-            #summ += u'\n' + u'\n'.join([ss for ss in txt_sum if len(ss) > 20 and ss not in max_sents])
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 

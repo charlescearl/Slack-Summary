@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from ts_summarizer import TextRankTsSummarizer
 from sp_summarizer import SpacyTsSummarizer
 import requests
 import json
@@ -50,8 +49,6 @@ class SlackRouter(object):
         else:
             response =  self.get_response(channel_id)
 	    a = (response.body)
-        #summ = TextRankTsSummarizer(self.build_interval(params))
-        #summary = summ.report_summary(a)
         summ = args['summ']
         summ_sp = SpacyTsSummarizer(self.build_interval(params))
         summ_sp.set_summarizer(summ)
