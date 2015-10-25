@@ -1,6 +1,6 @@
 import unittest
-from mock import MagicMock, patch
 import mock
+from mock import MagicMock, patch
 from slacker import Slacker
 import slacker
 import main
