@@ -3,8 +3,6 @@ conda_path=$(shell which conda)
 
 .PHONY: show check-env venv check run
 
-HOST_IP?=10.0.0.10
-NB_PORT?=8887
 
 ifeq ($(platform),Darwin)
 
@@ -15,13 +13,16 @@ else
 endif
 
 ifeq ($(SUMMARIZE_VENV),)
-SUMMARIZE_VENV=summarize_venv
+SUMMARIZE_VENV=summarize_venv2
 endif
 ifeq ($(CONDA_ENV_PATH),)
 CONDA_ENV_PATH=//anaconda
 endif
 
-PYLIBS := numpy scipy scikit-learn gensim
+HOST_IP?=10.0.0.10
+NB_PORT?=8887
+
+PYLIBS := numpy scipy scikit-learn gensim spacy flask
 VENVDIR := $(CONDA_ENV_PATH)/envs/$(SUMMARIZE_VENV)
 
 $(VENVDIR):
