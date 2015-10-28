@@ -40,13 +40,14 @@ class SlackRouter(object):
         params = args['params'] if 'params' in args else None
         request_id = uuid.uuid1()
         response =  self.get_response(channel_id)
-	a = (response.body)
+	msgs = (response.body)
+        msgs = msgs[u'messages'] if u'messages' in msgs else msgs
         summ = TextRankTsSummarizer(self.build_interval(params))
-        summary = summ.report_summary(a)
+        summary = summ.report_summary(msgs)
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)
-        self.logger.debug(u'Summary request %s messages: %s', request_id, a)
+        self.logger.debug(u'Summary request %s messages: %s', request_id, msgs)
         self.logger.info(u'Summary request %s summary:\n %s', request_id, summary)
 	res = u"*Chat Summary:* \n " + summary + "\n \n"
         return res
