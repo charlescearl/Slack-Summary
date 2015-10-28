@@ -1,8 +1,8 @@
 import unittest
 import json
 import io
-from sp_summarizer import (IntervalSpec, TsSummarizer,
-                           SpacyTsSummarizer,
+from ts_summarizer import (IntervalSpec, TsSummarizer,
+                           TextRankTsSummarizer,
                            ts_to_time)
 from datetime import datetime
 import logging
@@ -15,7 +15,7 @@ logger.level = logging.DEBUG if DEBUG else logging.INFO
 
 class TestSummarize(unittest.TestCase):
 
-    test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))
+    test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))['messages']
 
     def test_interval_conversion(self):
         self.assertTrue(ts_to_time("1441925382.000186") == datetime.fromtimestamp(1441925382))
@@ -41,7 +41,7 @@ class TestSummarize(unittest.TestCase):
     def test_text_rank_summarization(self):
         """Pass the intervals to Gensim TextRank"""
         asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
-        summ = SpacyTsSummarizer(asd)
+        summ = TextRankTsSummarizer(asd)
         sumry = summ.summarize(TestSummarize.test_msgs)
         logger.debug("Summary is %s", sumry)
         self.assertTrue(len(sumry) == 2)

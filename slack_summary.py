@@ -45,10 +45,11 @@ class SlackRouter(object):
         a = None
         if self.test:
             with io.open(TEST_JSON, encoding='utf-8') as iot:
-                a = json.load(iot)
+                a = json.load(iot)[u'messages']
         else:
             response =  self.get_response(channel_id)
 	    a = (response.body)
+            a = a[u'messages'] if u'messages' in a else a
         summ = args['summ']
         summ_sp = SpacyTsSummarizer(self.build_interval(params))
         summ_sp.set_summarizer(summ)

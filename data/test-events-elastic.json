@@ -1,4 +1,4 @@
-[   {
+{"messages": [   {
         "type": "message",
         "user": "U029CL0GJ",
         "text": "presumably those have been resolved by now however it seems the ES query i need to do has since changed as i'm getting an error",
@@ -391,4 +391,4 @@
         "user": "U029CL0GJ",
         "text": "fixed",
         "ts": "1414031263.000379"
-    }]
+    }]}

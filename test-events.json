@@ -1,4 +1,4 @@
-[
+{"messages": [
         {
         "type": "message",
         "user": "U029LMSEC",
@@ -47,4 +47,4 @@
         "text": "thanks for the debrief",
         "ts": "1441925398.000189"
     }
-    ]
+]}
