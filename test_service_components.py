@@ -1,6 +1,6 @@
 import unittest
-from mock import MagicMock, patch
 import mock
+from mock import MagicMock, patch
 from slacker import Slacker
 import slacker
 import main
@@ -23,10 +23,10 @@ class Test(unittest.TestCase):
         self.fh.setFormatter(formatter)
         self.logger.handlers = []
         self.logger.addHandler(self.fh)
-        self.expected = [{u'text': u'hmmm...',
+        self.expected = {u'has_more': True, u'messages': [{u'text': u'hmmm...',
                        u'ts': u'1414028037.000317',
                        u'type': u'message',
-                       u'user': u'U027LSDDA'}]
+                       u'user': u'U027LSDDA'}], u'ok': True}
         with io.open('./data/test-events-elastic.json', encoding='utf-8') as jf:
             self.larger_expected = json.load(jf)
         self.myresponse = Response()

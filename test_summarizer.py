@@ -15,7 +15,7 @@ logger.level = logging.DEBUG if DEBUG else logging.INFO
 
 class TestSummarize(unittest.TestCase):
 
-    test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))
+    test_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))['messages']
 
     def test_interval_conversion(self):
         self.assertTrue(ts_to_time("1441925382.000186") == datetime.fromtimestamp(1441925382))
