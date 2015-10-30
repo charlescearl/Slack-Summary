@@ -42,18 +42,18 @@ class SlackRouter(object):
         params = args['params'] if 'params' in args else None
         request_id = uuid.uuid1()
         response = None
-        a = None
+        msgs = None
         if self.test:
             with io.open(TEST_JSON, encoding='utf-8') as iot:
-                a = json.load(iot)[u'messages']
+                msgs = json.load(iot)[u'messages']
         else:
             response =  self.get_response(channel_id)
-	    a = (response.body)
-            a = a[u'messages'] if u'messages' in a else a
+	    msgs = (response.body)
+            msgs = msgs[u'messages'] if u'messages' in msgs else msgs
         summ = args['summ']
         summ_sp = SpacyTsSummarizer(self.build_interval(params))
         summ_sp.set_summarizer(summ)
-        summary = summ_sp.report_summary(a)
+        summary = summ_sp.report_summary(msgs)
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)

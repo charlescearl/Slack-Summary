@@ -81,6 +81,35 @@ class Test(unittest.TestCase):
         self.logger.info("Response is %s", rv.data)
         self.assertTrue(rv.status_code == 200)
 
+    @mock.patch('slacker.Slacker')
+    def test_service_no_command(self, mock_slack):
+        mock_slack.return_value.channels = self.channel_mock2
+        rv = self.app.post('/slack', data=dict(
+                    channel_id='achannel',
+                    channel_name='achannel',
+                    user_id='user123456',
+                    user_name='bob2',
+                    text=''
+                ), follow_redirects=True)
+        self.logger.handlers = []
+        self.logger.addHandler(self.fh)
+        self.logger.info("Response is %s", rv.data)
+        self.assertTrue(rv.status_code == 200)
+
+    @mock.patch('slacker.Slacker')
+    def test_service_no_text(self, mock_slack):
+        mock_slack.return_value.channels = self.channel_mock2
+        rv = self.app.post('/slack', data=dict(
+                    channel_id='achannel',
+                    channel_name='achannel',
+                    user_id='user123456',
+                    user_name='bob2'
+                ), follow_redirects=True)
+        self.logger.handlers = []
+        self.logger.addHandler(self.fh)
+        self.logger.info("Response is %s", rv.data)
+        self.assertTrue(rv.status_code == 200)
+        
 
 if __name__ == '__main__':
     unittest.main()
