@@ -24,14 +24,9 @@ class BaseSummarizer(object):
     def _get_best_sentences(self, sentences, count, rating, *args, **kwargs):
         rate = rating
         self.logger.info("Sentences are %s" % sentences)
-        #rate = lambda s: rating[s]
-        # if isinstance(rating, dict):
-        #     assert not args and not kwargs
-        #     rate = lambda s: rating[s]
 
         infos = (SentenceInfo(s, o, rate(s, *args, **kwargs))
             for o, s in enumerate(sentences))
-
         # sort sentences by rating in descending order
         infos = sorted(infos, key=attrgetter("rating"), reverse=True)
         # get `count` first best rated sentences

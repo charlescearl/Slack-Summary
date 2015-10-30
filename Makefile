@@ -21,7 +21,8 @@ endif
 
 HOST_IP?=10.0.0.10
 NB_PORT?=8887
-PYLIBS := numpy scipy scikit-learn gensim
+
+PYLIBS := numpy scipy scikit-learn gensim spacy flask
 VENVDIR := $(CONDA_ENV_PATH)/envs/$(SUMMARIZE_VENV)
 
 $(VENVDIR):

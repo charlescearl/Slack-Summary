@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-from ts_summarizer import TextRankTsSummarizer
+from sp_summarizer import SpacyTsSummarizer
 import requests
 import json
 from config import *
-from ts_config import DEBUG, LOG_FILE, SUMMARY_INTERVALS
+from ts_config import DEBUG, LOG_FILE, SUMMARY_INTERVALS, TEST_JSON
 from slacker import Slacker
 import slacker
 import logging
 import uuid
 import re
+import io
 
 class SlackRouter(object):
     expr = re.compile(r'-?(\d{1,3}?)\s+(\S{1,8})\s*(.*)$')
@@ -16,8 +17,9 @@ class SlackRouter(object):
     temporals = ['minute', 'min', 'hour', 'day', 'week']
 
 
-    def __init__(self,):
-        self.slack = slacker.Slacker(keys["slack"])
+    def __init__(self, test=False):
+        self.test = test
+        self.slack = None if self.test else slacker.Slacker(keys["slack"])
         log_level = logging.DEBUG if DEBUG else logging.INFO
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
@@ -39,11 +41,27 @@ class SlackRouter(object):
         user_name = args['user_name'] if 'user_name' in args else None
         params = args['params'] if 'params' in args else None
         request_id = uuid.uuid1()
+<<<<<<< HEAD
         response =  self.get_response(channel_id)
 	msgs = (response.body)
         msgs = msgs[u'messages'] if u'messages' in msgs else msgs
         summ = TextRankTsSummarizer(self.build_interval(params))
         summary = summ.report_summary(msgs)
+=======
+        response = None
+        a = None
+        if self.test:
+            with io.open(TEST_JSON, encoding='utf-8') as iot:
+                a = json.load(iot)[u'messages']
+        else:
+            response =  self.get_response(channel_id)
+	    a = (response.body)
+            a = a[u'messages'] if u'messages' in a else a
+        summ = args['summ']
+        summ_sp = SpacyTsSummarizer(self.build_interval(params))
+        summ_sp.set_summarizer(summ)
+        summary = summ_sp.report_summary(a)
+>>>>>>> temp_spacy_complete
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)
