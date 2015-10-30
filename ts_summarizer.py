@@ -32,6 +32,9 @@ class TextRankTsSummarizer(TsSummarizer):
         self.logger = logging.getLogger('ts_summarizer')
         self.logger.handlers = []
         self.logger.addHandler(fh)
+
+    def set_summarizer(self, val):
+        pass
                 
     def summarize_segment(self, msg_segment):
         """Return a summary of the text
@@ -44,9 +47,11 @@ class TextRankTsSummarizer(TsSummarizer):
         summ = txt + u' '
         can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
         self.logger.info("Length of can_dict is %s", len(can_dict))
+        simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         if len(msgs) < 10:
             #return the longest
-            summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
+            self.logger.warn("Too few messages for NLP.")
+            summ += simple_summ
         else:
             #txt_sum = [v for v in TextRankTsSummarizer.sumr(u' '.join(can_dict.keys()), size)]
             #self.logger.info("Spacy summ %s", txt_sum)
@@ -54,7 +59,12 @@ class TextRankTsSummarizer(TsSummarizer):
             self.logger.info("Gensim sum %s", gn_sum)
             #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
             #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in txt_sum if len(ss) > 1])
-            summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
+            gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
+            if len(gs_summ) > 5:
+                summ += gs_summ
+            else:
+                self.logger.warn("NLP Summarizer produced null output %s", gs_summ)
+                summ += simple_summ
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 

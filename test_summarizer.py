@@ -1,7 +1,8 @@
 import unittest
 import json
 import io
-from sp_summarizer import (SpacyTsSummarizer)
+#from sp_summarizer import (SpacyTsSummarizer)
+from ts_summarizer import (TextRankTsSummarizer)
 from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
                                  ts_to_time)
 from datetime import datetime
@@ -41,7 +42,8 @@ class TestSummarize(unittest.TestCase):
     def test_text_rank_summarization(self):
         """Pass the intervals to Gensim TextRank"""
         asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
-        summ = SpacyTsSummarizer(asd)
+        #summ = SpacyTsSummarizer(asd)
+        summ = TextRankTsSummarizer(asd)
         sumry = summ.summarize(TestSummarize.test_msgs)
         logger.debug("Summary is %s", sumry)
         self.assertTrue(len(sumry) == 2)
