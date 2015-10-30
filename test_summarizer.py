@@ -1,9 +1,9 @@
 import unittest
 import json
 import io
-from sp_summarizer import (IntervalSpec, TsSummarizer,
-                           SpacyTsSummarizer,
-                           ts_to_time)
+from sp_summarizer import (SpacyTsSummarizer)
+from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
+                                 ts_to_time)
 from datetime import datetime
 import logging
 import sys
