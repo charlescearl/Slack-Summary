@@ -7,7 +7,6 @@ from slack_summary import SlackRouter
 import lsa
 import spacy.en
 import spacy
-from util
 app = Flask(__name__)
 global summ
 global np 
