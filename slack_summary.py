@@ -57,7 +57,7 @@ class SlackRouter(object):
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)
-        self.logger.debug(u'Summary request %s messages: %s', request_id, msgs)
+        self.logger.debug(u'Summary request %s messages: %s', request_id, a)
         self.logger.info(u'Summary request %s summary:\n %s', request_id, summary)
 	res = u"*Chat Summary:* \n " + summary + "\n \n"
         return res
