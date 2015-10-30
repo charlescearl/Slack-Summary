@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from sp_summarizer import SpacyTsSummarizer
+#from sp_summarizer import SpacyTsSummarizer
+from ts_summarizer import TextRankTsSummarizer
 import requests
 import json
 from config import *
@@ -42,18 +43,19 @@ class SlackRouter(object):
         params = args['params'] if 'params' in args else None
         request_id = uuid.uuid1()
         response = None
-        a = None
+        msgs = None
         if self.test:
             with io.open(TEST_JSON, encoding='utf-8') as iot:
-                a = json.load(iot)[u'messages']
+                msgs = json.load(iot)[u'messages']
         else:
             response =  self.get_response(channel_id)
-	    a = (response.body)
-            a = a[u'messages'] if u'messages' in a else a
+	    msgs = (response.body)
+            msgs = msgs[u'messages'] if u'messages' in msgs else msgs
         summ = args['summ']
-        summ_sp = SpacyTsSummarizer(self.build_interval(params))
-        summ_sp.set_summarizer(summ)
-        summary = summ_sp.report_summary(a)
+        summ_sp = TextRankTsSummarizer(self.build_interval(params))
+        if summ:
+            summ_sp.set_summarizer(summ)
+        summary = summ_sp.report_summary(msgs)
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)
@@ -90,7 +92,9 @@ class SlackRouter(object):
         interval = {'size': 3}
         if unit:
             interval[unit+'s'] = units
+            interval['txt'] = u"Summary for last {} {}:\n".format(units, unit)
         else:
             interval['days'] = 5
+            interval['txt'] = u"Summary for last 5 days:\n"
         return [interval]
 

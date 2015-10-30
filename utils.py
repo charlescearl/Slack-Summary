@@ -25,3 +25,7 @@ class ItemsCount(object):
 
     def __repr__(self):
         return to_string("<ItemsCount: %r>" % self._value)
+
+def maybe_get(cont, key, default=None):
+    return cont[key] if key in cont else default
+    
