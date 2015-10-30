@@ -10,6 +10,7 @@ import spacy
 app = Flask(__name__)
 global summ
 global np 
+from utils import maybe_get
 summ = lsa.LsaSummarizer()
 nlp = spacy.en.English()
 
@@ -22,10 +23,10 @@ def slackReq():
 	req_data = request.form
         req = {
 	        'channel_id' : req_data.getlist('channel_id'),
-                'channel_name' : req_data['channel_name'],
-                'user_id' : req_data['user_id'],
-                'user_name' : req_data['user_name'],
-                'params' : req_data['text'],
+                'channel_name' : maybe_get(req_data, 'channel_name', default=''),
+                'user_id' : maybe_get(req_data, 'user_id', default=''),
+                'user_name' : maybe_get(req_data, 'user_name', default=''),
+                'params' : maybe_get(req_data, 'text', default=''),
                 'summ' : summ
                 }
 	return (SlackRouter().get_summary(**req))
@@ -39,10 +40,10 @@ def slackTestReq():
 	req_data = request.form
         req = {
 	        'channel_id' : req_data.getlist('channel_id'),
-                'channel_name' : req_data['channel_name'],
-                'user_id' : req_data['user_id'],
-                'user_name' : req_data['user_name'],
-                'params' : req_data['text'],
+                'channel_name' : maybe_get(req_data, 'channel_name', default=''),
+                'user_id' : maybe_get(req_data, 'user_id', default=''),
+                'user_name' : maybe_get(req_data, 'user_name', default=''),
+                'params' : maybe_get(req_data, 'text', default=''),
                 'summ' : summ,
                 'test' : True
                 }
