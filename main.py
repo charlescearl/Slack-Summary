@@ -9,10 +9,10 @@ import spacy.en
 import spacy
 app = Flask(__name__)
 global summ
-global np 
+#global np 
 from utils import maybe_get
 summ = lsa.LsaSummarizer()
-nlp = spacy.en.English()
+#nlp = spacy.en.English()
 
 
 @app.route("/slack", methods=['POST'])
