@@ -41,13 +41,6 @@ class SlackRouter(object):
         user_name = args['user_name'] if 'user_name' in args else None
         params = args['params'] if 'params' in args else None
         request_id = uuid.uuid1()
-<<<<<<< HEAD
-        response =  self.get_response(channel_id)
-	msgs = (response.body)
-        msgs = msgs[u'messages'] if u'messages' in msgs else msgs
-        summ = TextRankTsSummarizer(self.build_interval(params))
-        summary = summ.report_summary(msgs)
-=======
         response = None
         a = None
         if self.test:
@@ -61,7 +54,6 @@ class SlackRouter(object):
         summ_sp = SpacyTsSummarizer(self.build_interval(params))
         summ_sp.set_summarizer(summ)
         summary = summ_sp.report_summary(a)
->>>>>>> temp_spacy_complete
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)
         self.logger.info(u'Summary request %s parameters: %s', request_id, params)
