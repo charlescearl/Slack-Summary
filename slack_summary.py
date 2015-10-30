@@ -90,7 +90,9 @@ class SlackRouter(object):
         interval = {'size': 3}
         if unit:
             interval[unit+'s'] = units
+            interval['txt'] = u"Summary for last {} {}:\n".format(units, unit)
         else:
             interval['days'] = 5
+            interval['txt'] = u"Summary for last 5 days:\n"
         return [interval]
 

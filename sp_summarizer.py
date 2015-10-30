@@ -132,9 +132,10 @@ class SpacyTsSummarizer(TsSummarizer):
         summ = txt + u' '
         can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
         self.logger.info("Length of can_dict is %s", len(can_dict))
+        simple_sum = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))]) 
         if len(msgs) < 10:
             #return the longest
-            summ += tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
+            summ += simple_sum
         else:
             max_sents = {}
             for (txt, msg) in can_dict.items():
@@ -144,13 +145,18 @@ class SpacyTsSummarizer(TsSummarizer):
             txt_sum = [v for v in self.sumr(u' '.join(max_sents.keys()), size)]
             self.logger.info("Canonical keys are \n%s", u' '.join(can_dict.keys()))
             self.logger.info("Spacy summ %s", txt_sum)
-            summ += u'\n'.join([tagged_sum(max_sents[ss]) for ss in txt_sum if len(ss) > 1 and ss in max_sents])
+            nlp_summ = u'\n'.join([tagged_sum(max_sents[ss]) for ss in txt_sum if len(ss) > 1 and ss in max_sents])
             for ss in txt_sum:
                 if ss not in max_sents and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
-                            summ += u'\n' + tagged_sum(msg)
+                            nlp_summ += u'\n' + tagged_sum(msg)
+            if len(nlp_summ) < 2:
+                self.logger.info("Failed to find nlp summary using heuristic")
+                summ += simple_sum
+            else:
+                summ += nlp_summ
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 
