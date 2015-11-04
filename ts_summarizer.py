@@ -48,18 +48,33 @@ class TextRankTsSummarizer(TsSummarizer):
         can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
         self.logger.info("Length of can_dict is %s", len(can_dict))
         simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
-        if len(msgs) < 10:
+        # If the number of messages or vocabulary is too low, just look for a
+        # promising set of messages
+        if len(msgs) < 10 or ratio == 0 or len(can_dict) < 10:
             #return the longest
             self.logger.warn("Too few messages for NLP.")
             summ += simple_summ
         else:
+            max_sents = {}
+            for (txt, msg) in can_dict.items():
+                if len(txt.split()) > 3:
+                    sl = txt.split('. ')
+                    max_sents[max(sl, key = lambda x: len(x))] = msg
             #txt_sum = [v for v in TextRankTsSummarizer.sumr(u' '.join(can_dict.keys()), size)]
             #self.logger.info("Spacy summ %s", txt_sum)
             gn_sum = gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
+            mx_sum = gs_sumrz(u' '.join(max_sents.keys()), ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
             #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
             #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in txt_sum if len(ss) > 1])
-            gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
+            gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1 and ss in max_sents])
+            for ss in mx_sum:
+                if ss not in max_sents and len(ss.split()) > 5:
+                    self.logger.info("Searching for: %s", ss)
+                    for (ky, msg) in max_sents.items():
+                        if ss in ky or (len(ky.split()) > 10 and ky in ss):
+                            gs_summ += u'\n' + tagged_sum(msg)
+            #gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
             if len(gs_summ) > 5:
                 summ += gs_summ
             else:
@@ -76,7 +91,7 @@ class TextRankTsSummarizer(TsSummarizer):
 def canonicalize(txt):
     """Filter and change text to sentece form"""
     ntxt = TextRankTsSummarizer.flrg.sub(u'', txt)
-    return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
+    return '{} '.format(ntxt) if re.match(r'.*[\.\?]$', ntxt) else u'{}. '.format(ntxt)
 
 def tagged_sum(msg):
     return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), msg['user'],  msg['text'])
