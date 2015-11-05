@@ -19,9 +19,7 @@ from interval_summarizer import (IntervalSpec, TsSummarizer,
 logging.basicConfig(level=logging.INFO)
 
 class TextRankTsSummarizer(TsSummarizer):
-    #flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:')
-    #sumr = lsa.LsaSummarizer()
-    
+
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
         log_level = logging.DEBUG if TS_DEBUG else logging.INFO
@@ -43,6 +41,9 @@ class TextRankTsSummarizer(TsSummarizer):
            until this can be fixed
         """
         size, msgs, txt = msg_segment
+        if len(msgs) == 0:
+            self.logger.warn("No messages to form summary")
+            return u"\n Unable to form summary here.\n"
         ratio = size / float(len(msgs))
         summ = txt + u' '
         can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
@@ -50,7 +51,7 @@ class TextRankTsSummarizer(TsSummarizer):
         simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         # If the number of messages or vocabulary is too low, just look for a
         # promising set of messages
-        if len(msgs) < 10 or ratio == 0 or len(can_dict) < 10:
+        if len(msgs) < 11 or ratio == 0 or len(can_dict) < 11:
             #return the longest
             self.logger.warn("Too few messages for NLP.")
             summ += simple_summ
@@ -60,13 +61,10 @@ class TextRankTsSummarizer(TsSummarizer):
                 if len(txt.split()) > 3:
                     sl = txt.split('. ')
                     max_sents[max(sl, key = lambda x: len(x))] = msg
-            #txt_sum = [v for v in TextRankTsSummarizer.sumr(u' '.join(can_dict.keys()), size)]
-            #self.logger.info("Spacy summ %s", txt_sum)
-            gn_sum = gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
-            mx_sum = gs_sumrz(u' '.join(max_sents.keys()), ratio=ratio, split=True)[:size]
+            self.logger.info("Ratio: %s, Length of keys: %s, %s", ratio, len(can_dict.keys()), len(max_sents.keys()))
+            gn_sum = gs_sumrz(u'. '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
+            mx_sum = gs_sumrz(u'. '.join(max_sents.keys()), ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
-            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
-            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in txt_sum if len(ss) > 1])
             gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1 and ss in max_sents])
             for ss in mx_sum:
                 if ss not in max_sents and len(ss.split()) > 5:
@@ -74,7 +72,6 @@ class TextRankTsSummarizer(TsSummarizer):
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
                             gs_summ += u'\n' + tagged_sum(msg)
-            #gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
             if len(gs_summ) > 5:
                 summ += gs_summ
             else:
@@ -87,23 +84,6 @@ class TextRankTsSummarizer(TsSummarizer):
         ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', msg['text']) for msg in msg_segment if 'text' in msg])
         self.logger.debug("Parified text is %s", ptext)
         return ptext
-
-def canonicalize(txt):
-    """Filter and change text to sentece form"""
-    ntxt = TextRankTsSummarizer.flrg.sub(u'', txt)
-    return '{} '.format(ntxt) if re.match(r'.*[\.\?]$', ntxt) else u'{}. '.format(ntxt)
-
-def tagged_sum(msg):
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), msg['user'],  msg['text'])
-
-def ts_to_time(slack_ts):
-    """
-    Parameters
-    slack_ts : string EPOCH.ID
-    Return
-    datetime
-    """
-    return datetime.fromtimestamp(long(IntervalSpec.slk_ts.search(slack_ts).group('epoch')))
 
 def main():
     asd = [{'minutes': 30, 'txt' : u'Summary for first 30 minutes:\n', 'size' : 2}, {'hours':36, 'txt' : u'Summary for next 36 hours:\n', 'size': 3}]

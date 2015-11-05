@@ -74,6 +74,14 @@ class TsSummarizer(object):
         idx_end = 0
         interval_start = None
         msgs = [msg for msg in messages if u'attachments' not in msg and u'text' in msg and u'subtype' not in msg]
+        if len(msgs) == 0:
+            msgs = [msg for msg in messages if u'text' in msg and u'subtype' not in msg]
+            if len(msgs) == 0:
+                msgs = [msg for msg in messages if u'text' in msg]
+                if len(msgs) == 0:
+                    return [(self.intervals[0].size, msgs, self.intervals[0].txt)]
+        if len(msgs) == 1:
+            return [(self.intervals[0].size, msgs, self.intervals[0].txt)]
         smessages = sorted(msgs, reverse=True, key=lambda msg: ts_to_time(msg['ts']))
         for (idx, msg) in enumerate(smessages):
             idx_end = idx
@@ -108,7 +116,12 @@ class TsSummarizer(object):
         return self.intervals[idx].contains(istart, msg_ts)
 
 def tagged_sum(msg):
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), msg['user'],  msg['text'])
+    user = "USER UNKNOWN"
+    if 'user' in msg:
+        user = msg['user']
+    elif 'bot_id' in msg:
+        user = u'BOT'+msg['bot_id']
+    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), user,  msg['text'])
 
 def ts_to_time(slack_ts):
     """
@@ -122,4 +135,5 @@ def ts_to_time(slack_ts):
 def canonicalize(txt):
     """Filter and change text to sentece form"""
     ntxt = TsSummarizer.flrg.sub(u'', txt)
-    return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
+    return u'{} '.format(ntxt) if re.match(r'.*[\.\?]$', ntxt) else u'{}. '.format(ntxt)
+
