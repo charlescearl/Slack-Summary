@@ -28,4 +28,18 @@ class ItemsCount(object):
 
 def maybe_get(cont, key, default=None):
     return cont[key] if key in cont else default
-    
+
+def get_msg_text(msg):
+    """Pull the appropriate text from the message"""
+    if 'text' in msg and len(msg['text']) > 0:
+        return msg['text']
+    if 'attachments' in msg:
+        ats = msg['attachments']
+        if len(ats) > 0:
+            at = ats[0]
+            if 'title' in at and len(at['title']) > 0:
+                return at['title']
+            if 'text' in at and len(at['text']) > 0:
+                return at['text']
+    return u"Message text not retrieved"
+            

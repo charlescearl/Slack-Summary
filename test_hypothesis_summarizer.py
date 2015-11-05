@@ -20,8 +20,10 @@ logger.level = logging.DEBUG if DEBUG else logging.INFO
 test_json_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))['messages']
 test_json_msgs_c2 = json.load(io.open("./data/test-events-elastic.json", encoding='utf-8'))['messages']
 test_json_msgs_c3 = []
-for jfile in glob.glob('./data/slack-logs-2/jetpack/*.json'):
-    test_json_msgs_c3 += json.load(io.open(jfile, encoding='utf-8'))
+
+for dirs in ['api-test',  'calypso',  'games',  'happiness',  'hg',  'jetpack',  'jetpackfuel',  'livechat',  'tickets',  'vip']:
+    for jfile in glob.glob('./data/slack-logs-2/{}/*.json'.format(dirs)):
+        test_json_msgs_c3 += json.load(io.open(jfile, encoding='utf-8'))
 
 print len(test_json_msgs_c3)
 

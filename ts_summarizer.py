@@ -16,6 +16,7 @@ from ts_config import TS_DEBUG, TS_LOG
 import glob
 from interval_summarizer import (IntervalSpec, TsSummarizer,
                                  canonicalize, ts_to_time, tagged_sum)
+from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
 class TextRankTsSummarizer(TsSummarizer):
@@ -41,12 +42,12 @@ class TextRankTsSummarizer(TsSummarizer):
            until this can be fixed
         """
         size, msgs, txt = msg_segment
-        if len(msgs) == 0:
+        if not msgs or len(msgs) == 0:
             self.logger.warn("No messages to form summary")
             return u"\n Unable to form summary here.\n"
         ratio = size / float(len(msgs))
         summ = txt + u' '
-        can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
+        can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
         self.logger.info("Length of can_dict is %s", len(can_dict))
         simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         # If the number of messages or vocabulary is too low, just look for a
@@ -81,7 +82,7 @@ class TextRankTsSummarizer(TsSummarizer):
         return summ
 
     def parify_text(self, msg_segment):
-        ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', msg['text']) for msg in msg_segment if 'text' in msg])
+        ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', get_msg_text(msg)) for msg in msg_segment])
         self.logger.debug("Parified text is %s", ptext)
         return ptext
 

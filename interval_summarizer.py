@@ -8,6 +8,7 @@ import json
 import io
 from ts_config import TS_DEBUG, TS_LOG
 import glob
+from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
 class IntervalSpec(object):
@@ -73,13 +74,16 @@ class TsSummarizer(object):
         idx_start = 0
         idx_end = 0
         interval_start = None
-        msgs = [msg for msg in messages if u'attachments' not in msg and u'text' in msg and u'subtype' not in msg]
+        msgs = [msg for msg in messages if u'attachments' in msg or u'text' in msg ]
         if len(msgs) == 0:
-            msgs = [msg for msg in messages if u'text' in msg and u'subtype' not in msg]
-            if len(msgs) == 0:
-                msgs = [msg for msg in messages if u'text' in msg]
-                if len(msgs) == 0:
-                    return [(self.intervals[0].size, msgs, self.intervals[0].txt)]
+            return [(self.intervals[0].size, None, self.intervals[0].txt)]
+        # msgs = [msg for msg in messages if u'attachments' not in msg and u'text' in msg and u'subtype' not in msg]
+        # if len(msgs) == 0:
+        #     msgs = [msg for msg in messages if u'text' in msg and u'subtype' not in msg]
+        #     if len(msgs) == 0:
+        #         msgs = [msg for msg in messages if u'text' in msg]
+        #         if len(msgs) == 0:
+        #             return [(self.intervals[0].size, msgs, self.intervals[0].txt)]
         if len(msgs) == 1:
             return [(self.intervals[0].size, msgs, self.intervals[0].txt)]
         smessages = sorted(msgs, reverse=True, key=lambda msg: ts_to_time(msg['ts']))
@@ -121,7 +125,7 @@ def tagged_sum(msg):
         user = msg['user']
     elif 'bot_id' in msg:
         user = u'BOT'+msg['bot_id']
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), user,  msg['text'])
+    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), user,  get_msg_text(msg))
 
 def ts_to_time(slack_ts):
     """
