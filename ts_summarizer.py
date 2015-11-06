@@ -47,29 +47,35 @@ class TextRankTsSummarizer(TsSummarizer):
             self.logger.warn("No messages to form summary")
             return u"\n Unable to form summary here.\n"
         summ = txt + u' '
+        #limit canonical dictionary to top 200 docs
         can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
+        top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:300]
+        can_dict = {key: can_dict[key] for key in top_keys}
         self.logger.info("Length of can_dict is %s", len(can_dict))
-        simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
+        simple_sum = u'\n'.join([tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
         # If the number of messages or vocabulary is too low, just look for a
         # promising set of messages
         if len(msgs) < 11 or len(can_dict) < 11:
             #return the longest
             self.logger.warn("Too few messages for NLP.")
-            summ += simple_summ
+            summ += simple_sum
         else:
             max_sents = {}
             for (txt, msg) in can_dict.items():
                 if len(txt.split()) > 3:
                     #Use the same splitting that gensim does
                     for snt in split_sentences(txt):
+                        if len(snt.split()) > 100:
+                            snt = u' '.join(snt.split()[:100])
                         max_sents[snt] = msg
             ratio = (size * 2)/ float(len(max_sents.keys()))
+            #ratio = 0.3
             sent1 = u' '.join(can_dict.keys())
             sent2 = u' '.join(max_sents.keys())
             gn_sum = gs_sumrz(sent1, ratio=ratio, split=True)[:size]
             mx_sum = gs_sumrz(sent2, ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
-            gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1 and ss in max_sents])
+            gs_summ = u'\n'.join([tagged_sum(can_dict[ss] if ss in can_dict else max_sents[ss]) for ss in gn_sum if len(ss) > 1 and (ss in max_sents or ss in can_dict)])
             for ss in mx_sum:
                 if ss not in max_sents and ss not in can_dict and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
@@ -80,7 +86,7 @@ class TextRankTsSummarizer(TsSummarizer):
                 summ += gs_summ
             else:
                 self.logger.warn("NLP Summarizer produced null output %s", gs_summ)
-                summ += simple_summ
+                summ += simple_sum
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 
@@ -92,7 +98,8 @@ class TextRankTsSummarizer(TsSummarizer):
 def canonicalize(txt):
     """Change the messages so that each ends with punctation"""
     ntxt = TsSummarizer.flrg.sub(u'', txt)
-    return ntxt.strip() if re.match(r'.*[\.\?\!]\s*$', ntxt) else u'{}.'.format(ntxt.strip())
+    ntxt =  ntxt.strip() if re.match(r'.*[\.\?\!]\s*$', ntxt) else u'{}.'.format(ntxt.strip())
+    return ntxt if len(ntxt.split()) < 100 else u' '.join(ntxt.split()[:100])
     #return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
 
 def main():
