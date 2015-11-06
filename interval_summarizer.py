@@ -139,5 +139,6 @@ def ts_to_time(slack_ts):
 def canonicalize(txt):
     """Filter and change text to sentece form"""
     ntxt = TsSummarizer.flrg.sub(u'', txt)
-    return u'{} '.format(ntxt) if re.match(r'.*[\.\?]$', ntxt) else u'{}. '.format(ntxt)
+    return ntxt.strip() if re.match(r'.*[\.\?\!]\s*$', ntxt) else u'{}.'.format(ntxt.strip())
+    #return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
 

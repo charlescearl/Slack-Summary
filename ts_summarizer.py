@@ -11,11 +11,12 @@ import utils
 import base_summarizer
 import compat
 from gensim.summarization import summarize as gs_sumrz
+from gensim.summarization.textcleaner import split_sentences
 from gensim.models.word2vec import LineSentence
 from ts_config import TS_DEBUG, TS_LOG
 import glob
 from interval_summarizer import (IntervalSpec, TsSummarizer,
-                                 canonicalize, ts_to_time, tagged_sum)
+                                 ts_to_time, tagged_sum)
 from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
@@ -45,14 +46,13 @@ class TextRankTsSummarizer(TsSummarizer):
         if not msgs or len(msgs) == 0:
             self.logger.warn("No messages to form summary")
             return u"\n Unable to form summary here.\n"
-        ratio = size / float(len(msgs))
         summ = txt + u' '
         can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
         self.logger.info("Length of can_dict is %s", len(can_dict))
         simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
         # If the number of messages or vocabulary is too low, just look for a
         # promising set of messages
-        if len(msgs) < 11 or ratio == 0 or len(can_dict) < 11:
+        if len(msgs) < 11 or len(can_dict) < 11:
             #return the longest
             self.logger.warn("Too few messages for NLP.")
             summ += simple_summ
@@ -60,20 +60,23 @@ class TextRankTsSummarizer(TsSummarizer):
             max_sents = {}
             for (txt, msg) in can_dict.items():
                 if len(txt.split()) > 3:
-                    sl = txt.split('. ')
-                    max_sents[max(sl, key = lambda x: len(x))] = msg
-            self.logger.info("Ratio: %s, Length of keys: %s, %s", ratio, len(can_dict.keys()), len(max_sents.keys()))
-            gn_sum = gs_sumrz(u'. '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
-            mx_sum = gs_sumrz(u'. '.join(max_sents.keys()), ratio=ratio, split=True)[:size]
+                    #Use the same splitting that gensim does
+                    for snt in split_sentences(txt):
+                        max_sents[snt] = msg
+            ratio = (size * 2)/ float(len(max_sents.keys()))
+            sent1 = u' '.join(can_dict.keys())
+            sent2 = u' '.join(max_sents.keys())
+            gn_sum = gs_sumrz(sent1, ratio=ratio, split=True)[:size]
+            mx_sum = gs_sumrz(sent2, ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
             gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1 and ss in max_sents])
             for ss in mx_sum:
-                if ss not in max_sents and len(ss.split()) > 5:
+                if ss not in max_sents and ss not in can_dict and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
                             gs_summ += u'\n' + tagged_sum(msg)
-            if len(gs_summ) > 5:
+            if len(gn_sum) > 1:
                 summ += gs_summ
             else:
                 self.logger.warn("NLP Summarizer produced null output %s", gs_summ)
@@ -85,6 +88,12 @@ class TextRankTsSummarizer(TsSummarizer):
         ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', get_msg_text(msg)) for msg in msg_segment])
         self.logger.debug("Parified text is %s", ptext)
         return ptext
+
+def canonicalize(txt):
+    """Change the messages so that each ends with punctation"""
+    ntxt = TsSummarizer.flrg.sub(u'', txt)
+    return ntxt.strip() if re.match(r'.*[\.\?\!]\s*$', ntxt) else u'{}.'.format(ntxt.strip())
+    #return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
 
 def main():
     asd = [{'minutes': 30, 'txt' : u'Summary for first 30 minutes:\n', 'size' : 2}, {'hours':36, 'txt' : u'Summary for next 36 hours:\n', 'size': 3}]
