@@ -125,7 +125,7 @@ def tagged_sum(msg):
         user = msg['user']
     elif 'bot_id' in msg:
         user = u'BOT'+msg['bot_id']
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), user,  get_msg_text(msg))
+    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%a-%b-%-m-%Y %H:%M:%S %Z"), user,  get_msg_text(msg))
 
 def ts_to_time(slack_ts):
     """
