@@ -14,16 +14,24 @@ from hypothesis import given
 #import hypothesis.strategies as st
 from hypothesis.strategies import (sampled_from, lists, just, integers)
 import glob
-
+import random
 logger = logging.getLogger()
 logger.level = logging.DEBUG if DEBUG else logging.INFO
 test_json_msgs = json.load(io.open("./test-events.json", encoding='utf-8'))['messages']
 test_json_msgs_c2 = json.load(io.open("./data/test-events-elastic.json", encoding='utf-8'))['messages']
 test_json_msgs_c3 = []
 
-for dirs in ['api-test',  'calypso',  'games',  'happiness',  'hg',  'jetpack',  'jetpackfuel',  'livechat',  'tickets',  'vip']:
-    for jfile in glob.glob('./data/slack-logs-2/{}/*.json'.format(dirs)):
-        test_json_msgs_c3 += json.load(io.open(jfile, encoding='utf-8'))
+def read_dir(fdir):
+    coll = []
+    for jfile in glob.glob('./data/slack-logs-2/{}/*.json'.format(fdir)):
+        coll += json.load(io.open(jfile, encoding='utf-8'))
+    return coll
+
+test_json_msgs_c3 = [read_dir(fdir) for fdir in ['api-test',  'calypso',  'games',  'happiness',  'hg',  'jetpack',  'jetpackfuel',  'livechat',  'tickets',  'vip']]
+
+# for dirs in ['api-test',  'calypso',  'games',  'happiness',  'hg',  'jetpack',  'jetpackfuel',  'livechat',  'tickets',  'vip']:
+#     for jfile in glob.glob('./data/slack-logs-2/{}/*.json'.format(dirs)):
+#         test_json_msgs_c3 += json.load(io.open(jfile, encoding='utf-8'))
 
 print len(test_json_msgs_c3)
 
@@ -32,7 +40,7 @@ class TestSummarize(unittest.TestCase):
     test_msgs = test_json_msgs
 
     @given(
-        lists(elements=sampled_from(test_json_msgs), min_size=1),
+        lists(elements=sampled_from(test_json_msgs), min_size=3),
         integers(min_value=1, max_value=20)
     )
     def test_text_rank_summarization_ds1_days(self, smp_msgs, days):
@@ -51,7 +59,7 @@ class TestSummarize(unittest.TestCase):
 
 
     @given(
-        lists(elements=sampled_from(test_json_msgs_c2), min_size=1),
+        lists(elements=sampled_from(test_json_msgs_c2), min_size=12),
         integers(min_value=1, max_value=20)
     )
     def test_text_rank_summarization_ds2_days(self, smp_msgs, days):
@@ -70,21 +78,23 @@ class TestSummarize(unittest.TestCase):
 
 
     @given(
-        lists(elements=sampled_from(test_json_msgs_c3), min_size=1),
+        integers(min_value=1, max_value=1000),
         integers(min_value=1, max_value=20)
     )
-    def test_text_rank_summarization_ds3_days(self, smp_msgs, days):
+    def test_text_rank_summarization_ds3_days(self, sampsize, days):
         """Generate something for N day interval"""
-        logger.info("Input is %s", smp_msgs)
+        ssamp = random.choice(test_json_msgs_c3)
+        samp = random.choice(test_json_msgs_c3)[random.randint(1,len(ssamp)-2):]
+        logger.info("Input is segment is %s", samp)
         asd = [{'days': days, 'size' : 3, 'txt' : u'Summary for first {} days:\n'.format(days)}]
         summ = TextRankTsSummarizer(asd)
-        sumry = summ.summarize(smp_msgs)
+        sumry = summ.summarize(samp)
         logger.debug("Summary is %s", sumry)
         # Length of summary is at least 1 and no greater than 3
         self.assertTrue(len(sumry) >= 1)
         self.assertTrue(len(sumry) <= 3)
         # Length of summary is less than or equal to the original length
-        self.assertTrue(len(sumry) <= len(smp_msgs))
+        #self.assertTrue(len(sumry) <= len(samp))
         # Each message in the summary must correspond to a message
 
 
@@ -94,7 +104,7 @@ class TestSummarize(unittest.TestCase):
     def test_text_rank_summarization_ds1_hours(self, smp_msgs, hours):
         """Generate something for N hour intervals"""
         logger.info("Input is %s", smp_msgs)
-        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} minutes:\n'.format(hours)}]
+        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} hours:\n'.format(hours)}]
         summ = TextRankTsSummarizer(asd)
         sumry = summ.summarize(smp_msgs)
         logger.debug("Summary is %s", sumry)
@@ -112,7 +122,7 @@ class TestSummarize(unittest.TestCase):
     def test_text_rank_summarization_ds2_hours(self, smp_msgs, hours):
         """Generate something for N hour intervals"""
         logger.info("Input is %s", smp_msgs)
-        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} minutes:\n'.format(hours)}]
+        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} hours:\n'.format(hours)}]
         summ = TextRankTsSummarizer(asd)
         sumry = summ.summarize(smp_msgs)
         logger.debug("Summary is %s", sumry)
@@ -124,21 +134,24 @@ class TestSummarize(unittest.TestCase):
         # Each message in the summary must correspond to a message
         
 
-    @given(lists(elements=sampled_from(test_json_msgs_c3), min_size=1),
-           integers(min_value=1, max_value=24)
+    @given(
+        integers(min_value=2, max_value=1000),
+        integers(min_value=1, max_value=24)
     )
-    def test_text_rank_summarization_ds3_hours(self, smp_msgs, hours):
+    def test_text_rank_summarization_ds3_hours(self, sampsize, hours):
         """Generate something for N hour intervals"""
-        logger.info("Input is %s", smp_msgs)
-        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} minutes:\n'.format(hours)}]
+        ssamp = random.choice(test_json_msgs_c3)
+        samp = random.choice(test_json_msgs_c3)[random.randint(1,len(ssamp)-2):]
+        logger.info("Input is segment is %s", samp)
+        asd = [{'hours': hours, 'size' : 3, 'txt' : u'Summary for first {} hours:\n'.format(hours)}]
         summ = TextRankTsSummarizer(asd)
-        sumry = summ.summarize(smp_msgs)
+        sumry = summ.summarize(samp)
         logger.debug("Summary is %s", sumry)
         # Length of summary is at least 1 and no greater than 3
         self.assertTrue(len(sumry) >= 1)
         self.assertTrue(len(sumry) <= 3)
         # Length of summary is less than or equal to the original length
-        self.assertTrue(len(sumry) <= len(smp_msgs))
+        #self.assertTrue(len(sumry) <= len(samp))
         # Each message in the summary must correspond to a message
         
 
