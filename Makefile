@@ -1,7 +1,7 @@
 platform=$(shell uname -s)
 conda_path=$(shell which conda)
 
-.PHONY: show check-env venv check run hyp
+.PHONY: show check-env venv check run hyp spacy_hyp
 
 
 ifeq ($(platform),Darwin)
@@ -55,6 +55,9 @@ check: | $(VENVDIR)
 
 hyp: | $(VENVDIR)
 	$(PYVENV) ./test_hypothesis_summarizer.py
+
+spacy_hyp: | $(VENVDIR)
+	$(PYVENV) ./test_spacy_with_hypothesis.py
 
 run: | $(VENVDIR)
 	$(PYVENV) ./ts_summarizer.py
