@@ -4,23 +4,23 @@ import json
 import os
 from config import *
 from slack_summary import SlackRouter
-# import lsa
-# import spacy.en
-# import spacy
+import lsa
+import spacy.en
+import spacy
 app = Flask(__name__)
 global summ
-#global np 
+global np 
 from utils import maybe_get
-#summ = lsa.LsaSummarizer()
-summ = None
+summ = lsa.LsaSummarizer()
+# summ = None
 #nlp = spacy.en.English()
 
 
 @app.route("/slack", methods=['POST'])
 def slackReq():
-        # global summ
-        # if not summ:
-        #         summ = lsa.LsaSummarizer()
+        global summ
+        if not summ:
+                summ = lsa.LsaSummarizer()
 	req_data = request.form
         req = {
 	        'channel_id' : req_data.getlist('channel_id'),
@@ -35,9 +35,9 @@ def slackReq():
 
 @app.route("/slacktest", methods=['POST'])
 def slackTestReq():
-        # global summ
-        # if not summ:
-        #         summ = lsa.LsaSummarizer()
+        global summ
+        if not summ:
+                summ = lsa.LsaSummarizer()
 	req_data = request.form
         req = {
 	        'channel_id' : req_data.getlist('channel_id'),
