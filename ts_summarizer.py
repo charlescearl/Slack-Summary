@@ -11,17 +11,17 @@ import utils
 import base_summarizer
 import compat
 from gensim.summarization import summarize as gs_sumrz
+from gensim.summarization.textcleaner import split_sentences
 from gensim.models.word2vec import LineSentence
 from ts_config import TS_DEBUG, TS_LOG
 import glob
 from interval_summarizer import (IntervalSpec, TsSummarizer,
-                                 canonicalize, ts_to_time, tagged_sum)
+                                 ts_to_time, tagged_sum)
+from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
 class TextRankTsSummarizer(TsSummarizer):
-    #flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:')
-    #sumr = lsa.LsaSummarizer()
-    
+
     def __init__(self, ispecs):
         TsSummarizer.__init__(self, ispecs)
         log_level = logging.DEBUG if TS_DEBUG else logging.INFO
@@ -43,52 +43,64 @@ class TextRankTsSummarizer(TsSummarizer):
            until this can be fixed
         """
         size, msgs, txt = msg_segment
-        ratio = size / float(len(msgs))
+        if not msgs or len(msgs) == 0:
+            self.logger.warn("No messages to form summary")
+            return u"\n Unable to form summary here.\n"
         summ = txt + u' '
-        can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
+        #limit canonical dictionary to top 200 docs
+        can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
+        top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:300]
+        can_dict = {key: can_dict[key] for key in top_keys}
         self.logger.info("Length of can_dict is %s", len(can_dict))
-        simple_summ = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))])
-        if len(msgs) < 10:
+        simple_sum = u'\n'.join([tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
+        # If the number of messages or vocabulary is too low, just look for a
+        # promising set of messages
+        if len(msgs) < 11 or len(can_dict) < 11:
             #return the longest
             self.logger.warn("Too few messages for NLP.")
-            summ += simple_summ
+            summ += simple_sum
         else:
-            #txt_sum = [v for v in TextRankTsSummarizer.sumr(u' '.join(can_dict.keys()), size)]
-            #self.logger.info("Spacy summ %s", txt_sum)
-            gn_sum = gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size]
+            max_sents = {}
+            for (txt, msg) in can_dict.items():
+                if len(txt.split()) > 3:
+                    #Use the same splitting that gensim does
+                    for snt in split_sentences(txt):
+                        if len(snt.split()) > 100:
+                            snt = u' '.join(snt.split()[:100])
+                        max_sents[snt] = msg
+            ratio = (size * 2)/ float(len(max_sents.keys()))
+            #ratio = 0.3
+            sent1 = u' '.join(can_dict.keys())
+            sent2 = u' '.join(max_sents.keys())
+            gn_sum = gs_sumrz(sent1, ratio=ratio, split=True)[:size]
+            mx_sum = gs_sumrz(sent2, ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
-            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in gs_sumrz(u' '.join(can_dict.keys()), ratio=ratio, split=True)[:size] if len(ss) > 1])
-            #summ += u'\n'.join([tagged_sum(can_dict[ss]) for ss in txt_sum if len(ss) > 1])
-            gs_summ = u'\n'.join([tagged_sum(can_dict[ss]) for ss in gn_sum if len(ss) > 1])
-            if len(gs_summ) > 5:
+            gs_summ = u'\n'.join([tagged_sum(can_dict[ss] if ss in can_dict else max_sents[ss]) for ss in gn_sum if len(ss) > 1 and (ss in max_sents or ss in can_dict)])
+            for ss in mx_sum:
+                if ss not in max_sents and ss not in can_dict and len(ss.split()) > 5:
+                    self.logger.info("Searching for: %s", ss)
+                    for (ky, msg) in max_sents.items():
+                        if ss in ky or (len(ky.split()) > 10 and ky in ss):
+                            gs_summ += u'\n' + tagged_sum(msg)
+            if len(gn_sum) > 1:
                 summ += gs_summ
             else:
                 self.logger.warn("NLP Summarizer produced null output %s", gs_summ)
-                summ += simple_summ
+                summ += simple_sum
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 
     def parify_text(self, msg_segment):
-        ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', msg['text']) for msg in msg_segment if 'text' in msg])
+        ptext = u'. '.join([TextRankTsSummarizer.flrg.sub(u'', get_msg_text(msg)) for msg in msg_segment])
         self.logger.debug("Parified text is %s", ptext)
         return ptext
 
 def canonicalize(txt):
-    """Filter and change text to sentece form"""
-    ntxt = TextRankTsSummarizer.flrg.sub(u'', txt)
-    return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
-
-def tagged_sum(msg):
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%H:%M:%S %Z"), msg['user'],  msg['text'])
-
-def ts_to_time(slack_ts):
-    """
-    Parameters
-    slack_ts : string EPOCH.ID
-    Return
-    datetime
-    """
-    return datetime.fromtimestamp(long(IntervalSpec.slk_ts.search(slack_ts).group('epoch')))
+    """Change the messages so that each ends with punctation"""
+    ntxt = TsSummarizer.flrg.sub(u'', txt)
+    ntxt =  ntxt.strip() if re.match(r'.*[\.\?\!]\s*$', ntxt) else u'{}.'.format(ntxt.strip())
+    return ntxt if len(ntxt.split()) < 100 else u' '.join(ntxt.split()[:100])
+    #return ntxt if re.match(r'.*[\.\?]$', ntxt) else u'{}.'.format(ntxt)
 
 def main():
     asd = [{'minutes': 30, 'txt' : u'Summary for first 30 minutes:\n', 'size' : 2}, {'hours':36, 'txt' : u'Summary for next 36 hours:\n', 'size': 3}]
