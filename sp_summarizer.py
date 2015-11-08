@@ -8,6 +8,7 @@ import json
 import io
 from ts_config import TS_DEBUG, TS_LOG
 import glob
+from utils import get_msg_text
 from interval_summarizer import (IntervalSpec, TsSummarizer,
                                  canonicalize, ts_to_time, tagged_sum)
 logging.basicConfig(level=logging.INFO)
@@ -35,10 +36,17 @@ class SpacyTsSummarizer(TsSummarizer):
            until this can be fixed
         """
         size, msgs, txt = msg_segment
+        if not msgs or len(msgs) == 0:
+            self.logger.warn("No messages to form summary")
+            return u"\n Unable to form summary here.\n"
         summ = txt + u' '
-        can_dict = {canonicalize(msg['text']) : msg for msg in msgs if 'text' in msg}
+        can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
+        top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:300]
+        can_dict = {key: can_dict[key] for key in top_keys}
+        #can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
         self.logger.info("Length of can_dict is %s", len(can_dict))
-        simple_sum = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))]) 
+        simple_sum = u'\n'.join([tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
+        #simple_sum = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))]) 
         if len(msgs) < 10:
             #return the longest
             summ += simple_sum
