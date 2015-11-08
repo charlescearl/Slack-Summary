@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from sp_summarizer import SpacyTsSummarizer
-from ts_summarizer import TextRankTsSummarizer
+#from ts_summarizer import TextRankTsSummarizer
 import requests
 import json
 from config import *
