@@ -40,16 +40,18 @@ class SpacyTsSummarizer(TsSummarizer):
             self.logger.warn("No messages to form summary")
             return u"\n Unable to form summary here.\n"
         summ = txt + u' '
+        summ_list = []
         can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
         top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:300]
         can_dict = {key: can_dict[key] for key in top_keys}
         #can_dict = {canonicalize(get_msg_text(msg)) : msg for msg in msgs}
         self.logger.info("Length of can_dict is %s", len(can_dict))
+        simple_sum_list = [can_dict[ss] for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]]
         simple_sum = u'\n'.join([tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
         #simple_sum = tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))]) 
         if len(msgs) < 10:
             #return the longest
-            summ += simple_sum
+            summ += u'\n'.join([tagged_sum(ss) for ss in sorted(simple_sum_list, key=lambda x: x['ts'])])
         else:
             max_sents = {}
             for (txt, msg) in can_dict.items():
@@ -60,17 +62,21 @@ class SpacyTsSummarizer(TsSummarizer):
             self.logger.info("Canonical keys are \n%s", u' '.join(can_dict.keys()))
             self.logger.info("Spacy summ %s", txt_sum)
             nlp_summ = u'\n'.join([tagged_sum(max_sents[ss]) for ss in txt_sum if len(ss) > 1 and ss in max_sents])
+            nlp_list = [max_sents[ss] for ss in txt_sum if len(ss) > 1 and ss in max_sents]
             for ss in txt_sum:
                 if ss not in max_sents and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
                             nlp_summ += u'\n' + tagged_sum(msg)
-            if len(nlp_summ) < 2:
+                            nlp_list.append(msg)
+            if len(nlp_list) < 2:
                 self.logger.info("Failed to find nlp summary using heuristic")
-                summ += simple_sum
+                summ += u'\n'.join([tagged_sum(ss) for ss in sorted(simple_sum_list, key=lambda x: x['ts'])])
             else:
-                summ += nlp_summ
+                self.logger.info("First msg is %s, %s", nlp_list[0], nlp_list[0]['ts'])
+                self.logger.info("Sorted is %s", sorted(nlp_list, key=lambda x: x['ts']))
+                summ += u'\n'.join([tagged_sum(ss) for ss in sorted(nlp_list, key=lambda x: x['ts'])])
         self.logger.info("Summary for segment %s is %s", msgs, summ) 
         return summ
 
