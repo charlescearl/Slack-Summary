@@ -2,7 +2,7 @@
 import requests
 import json
 from config import *
-from ts_config import DEBUG, LOG_FILE, SUMMARY_INTERVALS, TEST_JSON
+from ts_config import DEBUG, LOG_FILE, SUMMARY_INTERVALS, TEST_JSON, SUMMS
 from slacker import Slacker
 import slacker
 import logging

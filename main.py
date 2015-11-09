@@ -3,6 +3,7 @@ import requests
 import json
 import os
 from config import *
+from ts_config import SUMMS
 from slack_summary import SlackRouter
 import lsa
 import spacy.en
