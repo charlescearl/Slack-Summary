@@ -9,9 +9,9 @@ import logging
 import uuid
 import re
 import io
-if SUMM == "gensim":
+if "gensim" in SUMMS:
     from ts_summarizer import TextRankTsSummarizer
-elif SUMM == "spacy":
+if "spacy" in SUMMS:
     from sp_summarizer import SpacyTsSummarizer
 
 class SlackRouter(object):
@@ -55,14 +55,13 @@ class SlackRouter(object):
             msgs = msgs[u'messages'] if u'messages' in msgs else msgs
         summ_object = args['summ']
         summ_impl = None
-        if SUMM == "gensim":
-            self.logger.info(u'Using gensim')
-            summ_impl = TextRankTsSummarizer(self.build_interval(params))
-        elif SUMM == "spacy":
+        if summ_object and "spacy" in SUMMS:
             self.logger.info(u'Using spacy')
             summ_impl = SpacyTsSummarizer(self.build_interval(params))
-        if summ_object:
             summ_impl.set_summarizer(summ_object)
+        elif "gensim" in SUMMS:
+            self.logger.info(u'Using gensim')
+            summ_impl = TextRankTsSummarizer(self.build_interval(params))
         summary = summ_impl.report_summary(msgs)
         self.logger.info(u'Summary request %s user_id: %s', request_id, user_id)
         self.logger.info(u'Summary request %s channel_name: %s', request_id, channel_name)

@@ -8,9 +8,11 @@ from datetime import datetime
 import logging
 import sys
 from ts_config import DEBUG
-from sp_summarizer import (SpacyTsSummarizer)
-import lsa
-from ts_summarizer import (TextRankTsSummarizer)
+if "spacy" in SUMMS:
+    from sp_summarizer import (SpacyTsSummarizer)
+    import lsa
+if "gensim" in SUMMS:
+    from ts_summarizer import (TextRankTsSummarizer)
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG if DEBUG else logging.INFO
@@ -42,25 +44,31 @@ class TestSummarize(unittest.TestCase):
 
     def test_gensim_summarization(self):
         """Pass the intervals to summarizer"""
-        asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
-        summ = None
-        summ = TextRankTsSummarizer(asd)
-        logger.debug("Testing gensim summarizer")
-        sumry = summ.summarize(TestSummarize.test_msgs)
-        logger.debug("Summary is %s", sumry)
-        self.assertTrue(len(sumry) == 2)
+        if "gensim" in SUMMS:
+            asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
+            summ = None
+            summ = TextRankTsSummarizer(asd)
+            logger.debug("Testing gensim summarizer")
+            sumry = summ.summarize(TestSummarize.test_msgs)
+            logger.debug("Summary is %s", sumry)
+            self.assertTrue(len(sumry) == 2)
+        else:
+            pass
 
     def test_spacy_summarization(self):
         """Pass the intervals to summarizer"""
-        asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
-        summ = None
-        lsa_summ = lsa.LsaSummarizer()
-        summ = SpacyTsSummarizer(asd)
-        summ.set_summarizer(lsa_summ)
-        logger.debug("Testing spacy summarizer")
-        sumry = summ.summarize(TestSummarize.test_msgs)
-        logger.debug("Summary is %s", sumry)
-        self.assertTrue(len(sumry) == 2)
+        if "spacy" in SUMMS:
+            asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
+            summ = None
+            lsa_summ = lsa.LsaSummarizer()
+            summ = SpacyTsSummarizer(asd)
+            summ.set_summarizer(lsa_summ)
+            logger.debug("Testing spacy summarizer")
+            sumry = summ.summarize(TestSummarize.test_msgs)
+            logger.debug("Summary is %s", sumry)
+            self.assertTrue(len(sumry) == 2)
+        else:
+            pass
 
 if __name__ == '__main__':
     unittest.main()
