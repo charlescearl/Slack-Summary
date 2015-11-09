@@ -30,7 +30,7 @@ def slackReq():
                 'params' : maybe_get(req_data, 'text', default=''),
                 'summ' : lsa_summ
                 }
-        if "gensim" in req['params'].split():
+        if "gensim" in SUMMS and "gensim" in req['params'].split():
                 req['summ'] = None
 	return (SlackRouter().get_summary(**req))
 
@@ -51,7 +51,7 @@ def slackTestReq():
                 'summ' : lsa_summ,
                 'test' : True
                 }
-        if "gensim" in req['params'].split():
+        if "gensim" in SUMMS and "gensim" in req['params'].split():
                 req['summ'] = None
 	return (SlackRouter(test=True).get_summary(**req))
 
