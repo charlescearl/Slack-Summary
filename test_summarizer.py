@@ -8,11 +8,9 @@ from datetime import datetime
 import logging
 import sys
 from ts_config import DEBUG
-if config.SUMM == "spacy":
-    from sp_summarizer import (SpacyTsSummarizer)
-    import lsa
-elif config.SUMM == "gensim":
-    from ts_summarizer import (TextRankTsSummarizer)
+from sp_summarizer import (SpacyTsSummarizer)
+import lsa
+from ts_summarizer import (TextRankTsSummarizer)
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG if DEBUG else logging.INFO
@@ -42,18 +40,24 @@ class TestSummarize(unittest.TestCase):
         logger.debug("First entry should be %s is %s", TestSummarize.test_msgs[4:], msgs[0][1][::-1])
         self.assertTrue(msgs[0][1][::-1] == TestSummarize.test_msgs[4:])
 
-    def test_summarization(self):
+    def test_gensim_summarization(self):
         """Pass the intervals to summarizer"""
         asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
         summ = None
-        if config.SUMM == "gensim":
-            summ = TextRankTsSummarizer(asd)
-            logger.debug("Testing gensim summarizer")
-        elif config.SUMM == "spacy":
-            lsa_summ = lsa.LsaSummarizer()
-            summ = SpacyTsSummarizer(asd)
-            summ.set_summarizer(lsa_summ)
-            logger.debug("Testing spacy summarizer")
+        summ = TextRankTsSummarizer(asd)
+        logger.debug("Testing gensim summarizer")
+        sumry = summ.summarize(TestSummarize.test_msgs)
+        logger.debug("Summary is %s", sumry)
+        self.assertTrue(len(sumry) == 2)
+
+    def test_spacy_summarization(self):
+        """Pass the intervals to summarizer"""
+        asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
+        summ = None
+        lsa_summ = lsa.LsaSummarizer()
+        summ = SpacyTsSummarizer(asd)
+        summ.set_summarizer(lsa_summ)
+        logger.debug("Testing spacy summarizer")
         sumry = summ.summarize(TestSummarize.test_msgs)
         logger.debug("Summary is %s", sumry)
         self.assertTrue(len(sumry) == 2)
