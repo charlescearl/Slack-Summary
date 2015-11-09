@@ -2,6 +2,7 @@ import unittest
 import json
 import io
 import config
+from config import SUMMS
 from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
                                  ts_to_time)
 from datetime import datetime
