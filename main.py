@@ -5,15 +5,16 @@ import os
 from config import *
 from ts_config import SUMMS
 from slack_summary import SlackRouter
-import lsa
-import spacy.en
-import spacy
 app = Flask(__name__)
-global lsa_summ
 from utils import maybe_get
+global lsa_summ
 lsa_summ = None
 if "spacy" in SUMMS:
+        import lsa
+        import spacy.en
+        import spacy
         lsa_summ = lsa.LsaSummarizer()
+
 
 @app.route("/slack", methods=['POST'])
 def slackReq():
@@ -30,7 +31,7 @@ def slackReq():
                 'params' : maybe_get(req_data, 'text', default=''),
                 'summ' : lsa_summ
                 }
-        if "gensim" in req['params'].split():
+        if "gensim" in SUMMS and "gensim" in req['params'].split():
                 req['summ'] = None
 	return (SlackRouter().get_summary(**req))
 
@@ -51,7 +52,7 @@ def slackTestReq():
                 'summ' : lsa_summ,
                 'test' : True
                 }
-        if "gensim" in req['params'].split():
+        if "gensim" in SUMMS and "gensim" in req['params'].split():
                 req['summ'] = None
 	return (SlackRouter(test=True).get_summary(**req))
 

@@ -59,7 +59,7 @@ class SlackRouter(object):
             self.logger.info(u'Using spacy')
             summ_impl = SpacyTsSummarizer(self.build_interval(params))
             summ_impl.set_summarizer(summ_object)
-        elif "gensim" in SUMMS:
+        else:
             self.logger.info(u'Using gensim')
             summ_impl = TextRankTsSummarizer(self.build_interval(params))
         summary = summ_impl.report_summary(msgs)
