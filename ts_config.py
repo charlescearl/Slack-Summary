@@ -4,4 +4,9 @@ TS_LOG = "./ts_summ.log"
 DEBUG=True
 LOG_FILE="./summary.log"
 TEST_JSON="./data/test-events-elastic.json"
+<<<<<<< HEAD
+=======
+SUMMS=["spacy"]
+
+>>>>>>> use_spacy_for_now
 
