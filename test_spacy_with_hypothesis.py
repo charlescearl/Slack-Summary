@@ -3,7 +3,7 @@ import json
 import io
 from sp_summarizer import (SpacyTsSummarizer)
 import hypothesis.settings as hs
-from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
+from interval_summarizer import (IntervalSpec, TsSummarizer,
                                  ts_to_time)
 import lsa
 from datetime import datetime

@@ -2,7 +2,7 @@ import unittest
 import json
 import io
 from ts_summarizer import (TextRankTsSummarizer)
-from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
+from interval_summarizer import (IntervalSpec, TsSummarizer,
                                  ts_to_time)
 from datetime import datetime
 import logging

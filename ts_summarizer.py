@@ -16,7 +16,7 @@ from gensim.models.word2vec import LineSentence
 from ts_config import TS_DEBUG, TS_LOG
 import glob
 from interval_summarizer import (IntervalSpec, TsSummarizer,
-                                 ts_to_time, tagged_sum)
+                                 ts_to_time)
 from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
@@ -52,7 +52,7 @@ class TextRankTsSummarizer(TsSummarizer):
         top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:300]
         can_dict = {key: can_dict[key] for key in top_keys}
         self.logger.info("Length of can_dict is %s", len(can_dict))
-        simple_sum = u'\n'.join([tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
+        simple_sum = u'\n'.join([self.tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
         # If the number of messages or vocabulary is too low, just look for a
         # promising set of messages
         if len(msgs) < 11 or len(can_dict) < 11:
@@ -75,13 +75,13 @@ class TextRankTsSummarizer(TsSummarizer):
             gn_sum = gs_sumrz(sent1, ratio=ratio, split=True)[:size]
             mx_sum = gs_sumrz(sent2, ratio=ratio, split=True)[:size]
             self.logger.info("Gensim sum %s", gn_sum)
-            gs_summ = u'\n'.join([tagged_sum(can_dict[ss] if ss in can_dict else max_sents[ss]) for ss in gn_sum if len(ss) > 1 and (ss in max_sents or ss in can_dict)])
+            gs_summ = u'\n'.join([self.tagged_sum(can_dict[ss] if ss in can_dict else max_sents[ss]) for ss in gn_sum if len(ss) > 1 and (ss in max_sents or ss in can_dict)])
             for ss in mx_sum:
                 if ss not in max_sents and ss not in can_dict and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
                     for (ky, msg) in max_sents.items():
                         if ss in ky or (len(ky.split()) > 10 and ky in ss):
-                            gs_summ += u'\n' + tagged_sum(msg)
+                            gs_summ += u'\n' + self.tagged_sum(msg)
             if len(gn_sum) > 1:
                 summ += gs_summ
             else:

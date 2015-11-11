@@ -3,7 +3,7 @@ import json
 import io
 import config
 from ts_config import SUMMS
-from interval_summarizer import (IntervalSpec, TsSummarizer, tagged_sum,
+from interval_summarizer import (IntervalSpec, TsSummarizer,
                                  ts_to_time)
 from datetime import datetime
 import logging

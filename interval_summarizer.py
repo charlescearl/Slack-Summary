@@ -12,6 +12,7 @@ from utils import get_msg_text
 logging.basicConfig(level=logging.INFO)
 
 class IntervalSpec(object):
+    
     slk_ts = re.compile(r'(?P<epoch>[1-9][^\.]+).*')
     
     def __init__(self, seconds=0, minutes=0, hours=0, days=0, weeks=0, size=10, txt=u"Summary for interval: \n"):
@@ -35,10 +36,11 @@ class IntervalSpec(object):
 class TsSummarizer(object):
     """Constructs summaries over a set of ranges"""
     flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:|`{3}[^`]*`{3}')
-
+    archive_link = u'https://a8c.slack.com/{}/tickets/p{}'
     def __init__(self, ispecs):
         self.intervals = map(lambda ispec: IntervalSpec(**ispec), ispecs)
         self.logger = logging.getLogger(__name__)
+        self.channel = None
         log_level = logging.DEBUG if TS_DEBUG else logging.INFO
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh = logging.FileHandler(TS_LOG, mode='a', encoding='utf-8')
@@ -59,10 +61,26 @@ class TsSummarizer(object):
     def set_interval(self, ispecs):
         self.intervals = map(lambda ispec: IntervalSpec(**ispec), ispecs)
 
+    def set_channel(self, channel):
+        self.channel = channel
+
     def summarize_segment(self, msg_seg):
         """Call the summarizer that is used."""
         return msg_seg
 
+
+    def tagged_sum(self, msg):
+        user = "USER UNKNOWN"
+        if 'user' in msg:
+            user = msg['user']
+        elif 'bot_id' in msg:
+            user = u'BOT'+msg['bot_id']
+        msg = u' '.join(get_msg_text(msg).split()[:5])
+        if self.channel:
+            link = TsSummarizer.archive_link.format(self.channel, re.sub(r'\.',u'',msg['ts']))
+            msg += u'<a href=\"'+link+'\">...</a>'
+        return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%a-%b-%-m-%Y %H:%M:%S %Z"), user,  msg)
+    
     def segment_messages(self, messages):
         """Create message bins.
         Parameters
@@ -121,14 +139,6 @@ class TsSummarizer(object):
         """
         self.logger.debug("Checking to see if %s is between %s and end", msg_ts, istart)
         return self.intervals[idx].contains(istart, msg_ts)
-
-def tagged_sum(msg):
-    user = "USER UNKNOWN"
-    if 'user' in msg:
-        user = msg['user']
-    elif 'bot_id' in msg:
-        user = u'BOT'+msg['bot_id']
-    return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%a-%b-%-m-%Y %H:%M:%S %Z"), user,  get_msg_text(msg))
 
 def ts_to_time(slack_ts):
     """
