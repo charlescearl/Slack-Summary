@@ -36,7 +36,7 @@ class IntervalSpec(object):
 class TsSummarizer(object):
     """Constructs summaries over a set of ranges"""
     flrg = re.compile(r'[\n\r\.]|\&[a-z]+;|<http:[^>]+>|\:[^: ]+\:|`{3}[^`]*`{3}')
-    archive_link = u'https://a8c.slack.com/{}/tickets/p{}'
+    archive_link = u'https://a8c.slack.com/archives/{}/p{}'
     def __init__(self, ispecs):
         self.intervals = map(lambda ispec: IntervalSpec(**ispec), ispecs)
         self.logger = logging.getLogger(__name__)
@@ -75,11 +75,11 @@ class TsSummarizer(object):
             user = msg['user']
         elif 'bot_id' in msg:
             user = u'BOT'+msg['bot_id']
-        msg = u' '.join(get_msg_text(msg).split()[:5])
+        text = u' '.join(get_msg_text(msg).split()[:20])
         if self.channel:
             link = TsSummarizer.archive_link.format(self.channel, re.sub(r'\.',u'',msg['ts']))
-            msg += u'<a href=\"'+link+'\">...</a>'
-        return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%a-%b-%-m-%Y %H:%M:%S %Z"), user,  msg)
+            text = u'<a href=\"'+link+'\">'+text+'</a>'
+        return u'@{}  <{}>: {}'.format(ts_to_time(msg['ts']).strftime("%a-%b-%-m-%Y %H:%M:%S %Z"), user,  text)
     
     def segment_messages(self, messages):
         """Create message bins.

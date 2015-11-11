@@ -64,6 +64,7 @@ class SlackRouter(object):
             self.logger.info(u'Using gensim')
             summ_impl = TextRankTsSummarizer(self.build_interval(params))
         if summ_impl:
+            summ_impl.set_channel(channel_name)
             summary = summ_impl.report_summary(msgs)
         else:
             self.logger.warn(u'No summarizer was set!')

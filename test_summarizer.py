@@ -49,6 +49,7 @@ class TestSummarize(unittest.TestCase):
             asd = [{'minutes': 60, 'size' : 2, 'txt' : u'Summary for first 60 minutes:\n'}, {'hours':12, 'size' : 1, 'txt' : u'Summary for last 12 hours:\n'}]
             summ = None
             summ = TextRankTsSummarizer(asd)
+            summ.set_channel('elasticsearch')
             logger.debug("Testing gensim summarizer")
             sumry = summ.summarize(TestSummarize.test_msgs)
             logger.debug("Summary is %s", sumry)
@@ -64,6 +65,7 @@ class TestSummarize(unittest.TestCase):
             lsa_summ = lsa.LsaSummarizer()
             summ = SpacyTsSummarizer(asd)
             summ.set_summarizer(lsa_summ)
+            summ.set_channel('elasticsearch')
             logger.debug("Testing spacy summarizer")
             sumry = summ.summarize(TestSummarize.test_msgs)
             logger.debug("Summary is %s", sumry)
