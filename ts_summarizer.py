@@ -3,6 +3,7 @@ from collections import namedtuple
 from datetime import (timedelta, datetime)
 import re
 import logging
+import logging.handlers
 import sys
 import json
 import io
@@ -26,7 +27,7 @@ class TextRankTsSummarizer(TsSummarizer):
         TsSummarizer.__init__(self, ispecs)
         log_level = logging.DEBUG if TS_DEBUG else logging.INFO
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh = logging.FileHandler(TS_LOG, mode='a', encoding='utf-8')
+        fh = logging.handlers.RotatingFileHandler('./text_rank_'+TS_LOG, mode='a', encoding='utf-8', maxBytes=1000000, backupCount=5)
         fh.setLevel(log_level)
         fh.setFormatter(formatter)
         self.logger = logging.getLogger('ts_summarizer')

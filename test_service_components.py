@@ -10,6 +10,7 @@ import config
 from ts_config import DEBUG, LOG_FILE
 import sys
 import logging
+import logging.handlers
 import json
 import io
 
@@ -18,7 +19,7 @@ class Test(unittest.TestCase):
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         log_level = logging.DEBUG if DEBUG else logging.INFO
         self.logger = logging.getLogger(__name__)
-        self.fh = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
+        self.fh = logging.handlers.RotatingFileHandler('./testing_'+LOG_FILE, mode='a', encoding='utf-8', maxBytes=1000000, backupCount=5,)
         self.fh.setLevel(log_level)
         self.fh.setFormatter(formatter)
         self.logger.handlers = []
