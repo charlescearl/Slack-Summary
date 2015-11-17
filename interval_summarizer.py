@@ -55,6 +55,8 @@ class TsSummarizer(object):
             user = msg['user']
         elif 'bot_id' in msg:
             user = msg['bot_id']
+        elif 'username' in msg and msg['username'] == u'bot':
+            user = 'bot'
         split_text = get_msg_text(msg).split()
         text = u' '.join(split_text[:30])+u'...' if len(split_text) > 30 else u' '.join(split_text)
         if self.channel:

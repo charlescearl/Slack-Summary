@@ -68,7 +68,7 @@ class LsaSummarizer(BaseSummarizer):
         if to_add > 0:
             final_sents += sorted(list(additional_sents)[:to_add], key=lambda x: len(x), reverse=True)
         logger.info("Filtered sentences %s", filt_sents)
-        logger.info("Final recommendations are %s", final_sents)
+        logger.info("Final recommendations are %s", final_sents[:sentences_count])
         return final_sents
 
 
