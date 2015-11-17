@@ -57,19 +57,23 @@ class SpacyTsSummarizer(TsSummarizer):
         top_keys = sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)
         can_dict = {key: can_dict[key] for key in top_keys}
         self.logger.info("Length of can_dict is %s", len(can_dict))
-        simple_sum_list = [can_dict[ss] for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]]
-        simple_sum = u'\n'.join([self.tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:3]])
+        simple_sum_list = [can_dict[ss] for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:size]]
+        simple_sum = u'\n'.join([self.tagged_sum(can_dict[ss]) for ss in sorted(can_dict.keys(), key=lambda x: len(x.split()), reverse=True)[:size]])
+        #simple_sum = u'\n'.join([self.tagged_sum(ss) for ss in simple_sum_list])
+        assert(len(simple_sum_list) <= size)
         #simple_sum = self.tagged_sum(can_dict[max(can_dict.keys(), key=lambda x: len(x))]) 
         if len(msgs) < 10:
             #return the longest
             summ += u'\n'.join([self.tagged_sum(ss) for ss in sorted(simple_sum_list, key=lambda x: x['ts'])])
         else:
             max_sents = {}
+            user_sents = {}
             for (txt, msg) in can_dict.items():
                 if len(txt.split()) > 3:
                     sl = list(self.sumr.nlp(txt).sents)
                     max_sents[max(sl, key = lambda x: len(x)).text] = msg
-            txt_sum = [v for v in self.sumr(u' '.join(max_sents.keys()), size)]
+                    user_sents[max(sl, key = lambda x: len(x)).text] = msg['user'] if 'user' in msg else u''
+            txt_sum = [v for v in self.sumr(u' '.join(max_sents.keys()), size, user_sents)]
             self.logger.info("Canonical keys are \n%s", u' '.join(can_dict.keys()))
             self.logger.info("Spacy summ %s", txt_sum)
             nlp_summ = u'\n'.join([self.tagged_sum(max_sents[ss]) for ss in txt_sum if len(ss) > 1 and ss in max_sents])
@@ -78,7 +82,7 @@ class SpacyTsSummarizer(TsSummarizer):
                 if ss not in max_sents and len(ss.split()) > 5:
                     self.logger.info("Searching for: %s", ss)
                     for (ky, msg) in max_sents.items():
-                        if ss in ky or (len(ky.split()) > 10 and ky in ss):
+                        if ss in ky or (len(ky.split()) > 10 and ky in ss) and len(nlp_list) <= size:
                             nlp_summ += u'\n' + self.tagged_sum(msg)
                             nlp_list.append(msg)
             if len(nlp_list) < 2:
