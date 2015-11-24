@@ -12,14 +12,14 @@ the present time.
 
 The `command` syntax formally is
 
-	<command> ::= /summary -<time-units-back> <time-unit>
-        <time-unit> ::= minutes|hours|days|weeks
-        <time-units-back> ::= integer
+    <command> ::= /summary -<time-units-back> <time-unit>
+    <time-unit> ::= minutes|hours|days|weeks
+    <time-units-back> ::= integer
 
 so
 
 	/summary -5 hours
-        /summary -30 minutes
+	/summary -30 minutes
 
 means "generate a summary covering the last 5 hours" and "generate a summary covering the last 30 minutes" respectively.
 
