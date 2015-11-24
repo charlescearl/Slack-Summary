@@ -4,11 +4,14 @@ Summarize it is a chat summarizer plugin for instant messaging applications. It 
 
 The original relied on an HP cloud concepts expraction api. We've pulled that out to remove any reliance on 3rd party apis, and are going to improve the summarizations.
 
+There is a [final report on the current version](https://github.com/charlescearl/Slack-Summary/blob/master/FinalReport.md) that details the various NLP approaches taken and gives the command line syntax.
+
+
 ## Installing Summarize It plugin for your slack
 
 To install the summary package
 
-Firsts, create a token for your team `https://api.slack.com/web` 
+First, create a token for your team `https://api.slack.com/web` 
 
    	   pip install flask requests slacker wsgiref jupyter mock pbr spacy numpy
 
@@ -54,20 +57,21 @@ To complete the installation
 
 3. Enter the request url as `<your-deployed-app-url>/slack`
 
+
+
 ## Using Summarize It plugin with slack
 
 Let's assume that that plugin is named <b>summary</b>. The plugin supports a small
 command line syntax with allows specification of the previous window of time to look
-back. Currently this can be specified in `minutes, days, or weeks`. Keyword search is
-coming soon.
+back. Currently this can be specified in `minutes, days, or weeks`. 
 
 So to get the key messages from the last 5 days:
 
-   /summary 5 days
+   /summary -5 days
 
 Or to get a summary of the important messages over the last two weeks
 
-   /summary 2 weeks
+   /summary -2 weeks
 
 
 ## Screenshots
